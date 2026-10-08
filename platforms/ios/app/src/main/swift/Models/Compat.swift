@@ -23,13 +23,16 @@ import UIKit
 @propertyWrapper
 struct ObservedOptional<Object: ObservableObject>: DynamicProperty {
     @StateObject private var relay = ObservedOptionalRelay()
-    private let object: Object?
+    private var object: Object?
 
     init(wrappedValue: Object?) {
         object = wrappedValue
     }
 
-    var wrappedValue: Object? { object }
+    var wrappedValue: Object? {
+        get { object }
+        set { object = newValue }
+    }
 
     func update() {
         relay.attach(to: object)
