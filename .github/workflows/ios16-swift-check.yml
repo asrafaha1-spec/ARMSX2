@@ -29,6 +29,7 @@ jobs:
           SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
           swiftc -typecheck \
             -swift-version 6 \
+            -wmo \
             -target arm64-apple-ios16.0 \
             -sdk "$SDK" \
             -import-objc-header cpp/ARMSX2-Bridging-Header.h \
