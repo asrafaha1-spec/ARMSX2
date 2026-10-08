@@ -15,6 +15,9 @@ on:
       - '.github/workflows/ios16.yml'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 concurrency:
   group: ios16-${{ github.ref }}
   cancel-in-progress: true
@@ -55,16 +58,20 @@ jobs:
       - name: Build
         working-directory: platforms/ios/app/src/main/cpp
         run: >
+          set -o pipefail;
           cmake --build build --config Release
           -- -sdk iphoneos CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO 2>&1 | tee "$RUNNER_TEMP/build.log"
 
-      - name: Upload build log
+      - name: Publish log to ci-logs branch
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log
-          path: ${{ runner.temp }}/build.log
-          if-no-files-found: ignore
+        run: |
+          mkdir -p "$RUNNER_TEMP/logs" && cd "$RUNNER_TEMP/logs"
+          git init -q && git checkout -q -b ci-logs
+          grep -E "error:|warning: .*(only available|deployment target|built for newer)|BUILD (FAILED|SUCCEEDED)|\*\* BUILD" "$RUNNER_TEMP/build.log" | sort | uniq | head -400 > build-errors.txt || true
+          tail -n 400 "$RUNNER_TEMP/build.log" > build-tail.log || true
+          echo "${GITHUB_SHA}" > commit.txt
+          git add -A && git -c user.name=ci -c user.email=ci@example.invalid commit -q -m "build log for ${GITHUB_SHA}"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-logs:ci-logs-build
 
       - name: Check the deployment target of the built app
         working-directory: platforms/ios/app/src/main/cpp
