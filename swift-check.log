@@ -1,0 +1,130 @@
+swift/Models/Compat.swift:37:9: warning: main actor-isolated property 'relay' can not be referenced from a nonisolated context
+ 22 | @propertyWrapper
+ 23 | struct ObservedOptional<Object: ObservableObject>: DynamicProperty {
+ 24 |     @StateObject private var relay = ObservedOptionalRelay()
+    |                              `- note: property declared here
+ 25 |     private var object: Object?
+ 26 | 
+    :
+ 34 |     }
+ 35 | 
+ 36 |     func update() {
+    |          `- note: add '@MainActor' to make instance method 'update()' part of global actor 'MainActor'
+ 37 |         relay.attach(to: object)
+    |         `- warning: main actor-isolated property 'relay' can not be referenced from a nonisolated context
+ 38 |     }
+ 39 | }
+
+swift/Models/Compat.swift:370:25: warning: call to main actor-isolated static method 'post(notification:argument:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+367 | enum CompatAccessibility {
+368 |     /// VoiceOver announcement. `AccessibilityNotification.Announcement` needs iOS 17.
+369 |     static func announce(_ message: String) {
+    |                 `- note: add '@MainActor' to make static method 'announce' part of global actor 'MainActor'
+370 |         UIAccessibility.post(notification: .announcement, argument: message)
+    |                         `- warning: call to main actor-isolated static method 'post(notification:argument:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+371 |     }
+372 | }
+
+/Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIAccessibility.h:521:19: note: calls to static method 'post(notification:argument:)' from outside of its actor context are implicitly asynchronous
+519 |  See UIAccessibilityConstants.h for a list of notifications.
+520 |  */
+521 | UIKIT_EXTERN void UIAccessibilityPostNotification(UIAccessibilityNotifications notification, __nullable id argument) API_UNAVAILABLE(watchos) NS_SWIFT_UI_ACTOR;
+    |                   `- note: calls to static method 'post(notification:argument:)' from outside of its actor context are implicitly asynchronous
+522 | 
+523 | /* 
+
+swift/Models/ControllerAccessibilityNavigation.swift:1912:23: warning: immutable value 'owner' was never used; consider replacing with '_' or removing it [#no-usage]
+1910 |             // may have registered while this single reconciliation was queued.
+1911 |             guard let key = self.pendingFocusKey ?? self.focusedKey,
+1912 |                   let owner = self.targets[key]?.view.value,
+     |                       `- warning: immutable value 'owner' was never used; consider replacing with '_' or removing it [#no-usage]
+1913 |                   self.isMountedAndEnabled(key) else { return }
+1914 |             if self.pendingFocusKey == key {
+
+swift/Models/ImportDocumentPicker.swift:12:26: warning: 'UIDocumentPickerMode' was deprecated in iOS 14.0: Use appropriate initializers instead [#DeprecatedDeclaration]
+10 | 	let allowsMultipleSelection: Bool
+11 | 	let legacyDocumentTypes: [String]?
+12 | 	let legacyDocumentMode: UIDocumentPickerMode
+   |                          `- warning: 'UIDocumentPickerMode' was deprecated in iOS 14.0: Use appropriate initializers instead [#DeprecatedDeclaration]
+13 | 	let asCopy: Bool
+14 | 	let onComplete: (Result<[URL], Error>) -> Void
+
+swift/Models/ImportDocumentPicker.swift:20:23: warning: 'UIDocumentPickerMode' was deprecated in iOS 14.0: Use appropriate initializers instead [#DeprecatedDeclaration]
+18 | 		allowsMultipleSelection: Bool,
+19 | 		legacyDocumentTypes: [String]? = nil,
+20 | 		legacyDocumentMode: UIDocumentPickerMode = .import,
+   |                       `- warning: 'UIDocumentPickerMode' was deprecated in iOS 14.0: Use appropriate initializers instead [#DeprecatedDeclaration]
+21 | 		asCopy: Bool = true,
+22 | 		onComplete: @escaping (Result<[URL], Error>) -> Void
+
+swift/Models/ImportDocumentPicker.swift:39:13: warning: 'init(documentTypes:in:)' was deprecated in iOS 14.0 [#DeprecatedDeclaration]
+37 | 		let picker: UIDocumentPickerViewController
+38 | 		if let legacyDocumentTypes {
+39 | 			picker = UIDocumentPickerViewController(documentTypes: legacyDocumentTypes, in: legacyDocumentMode)
+   |             `- warning: 'init(documentTypes:in:)' was deprecated in iOS 14.0 [#DeprecatedDeclaration]
+40 | 			let modeName = legacyDocumentMode == .open ? "open" : "import"
+41 | 			NSLog("[ARMSX2 iOS Import] opening legacy document picker types=%@ multiple=%d mode=%@",
+
+swift/Views/Background/Dynamic/DynamicBackgrounds.swift:4278:11: warning: initialization of immutable value 'deepColor' was never used; consider replacing with assignment to '_' or removing it [#no-usage]
+4276 |         * settings.backgrounds.faceButtonsSpeed
+4277 |       let paletteProgress = paletteTransitionProgress(at: time)
+4278 |       let deepColor = sharedColor(index: 0, time: time, progress: paletteProgress)
+     |           `- warning: initialization of immutable value 'deepColor' was never used; consider replacing with assignment to '_' or removing it [#no-usage]
+4279 |       let midColor = sharedColor(index: 1, time: time, progress: paletteProgress)
+4280 |       let lightColor = sharedColor(index: 2, time: time, progress: paletteProgress)
+
+swift/Views/Background/Dynamic/DynamicBackgrounds.swift:4279:11: warning: initialization of immutable value 'midColor' was never used; consider replacing with assignment to '_' or removing it [#no-usage]
+4277 |       let paletteProgress = paletteTransitionProgress(at: time)
+4278 |       let deepColor = sharedColor(index: 0, time: time, progress: paletteProgress)
+4279 |       let midColor = sharedColor(index: 1, time: time, progress: paletteProgress)
+     |           `- warning: initialization of immutable value 'midColor' was never used; consider replacing with assignment to '_' or removing it [#no-usage]
+4280 |       let lightColor = sharedColor(index: 2, time: time, progress: paletteProgress)
+4281 |       let sharedGradient = displayedTheme.sharedGradientPoints(
+
+swift/Views/OrbitKeys/OrbitKeysSettings.swift:186:12: warning: passing non-Sendable parameter 'set' to function expecting a '@Sendable' closure
+180 |   private func settingBinding<Value>(
+181 |     _ keyPath: KeyPath<OrbitKeysModel, Value>,
+182 |     set: @escaping (Value) -> Void
+    |     `- note: parameter 'set' is implicitly non-Sendable
+183 |   ) -> Binding<Value> {
+184 |     Binding(
+185 |       get: { model[keyPath: keyPath] },
+186 |       set: set
+    |            `- warning: passing non-Sendable parameter 'set' to function expecting a '@Sendable' closure
+187 |     )
+188 |   }
+
+swift/Views/Settings/BackgroundSourcePicker.swift:81:23: warning: no 'async' operations occur within 'await' expression
+ 79 |                 return
+ 80 |             }
+ 81 |             let ext = await item.supportedContentTypes.first?.preferredFilenameExtension ?? "jpg"
+    |                       `- warning: no 'async' operations occur within 'await' expression
+ 82 |             let replacing = currentAsset
+ 83 |             let asset = try await Task.detached(priority: .userInitiated) {
+
+swift/Views/Settings/ShaderWorkspaceView.swift:565:13: warning: result of call to 'withTransaction' is unused [#no-usage]
+ 563 |             var transaction = Transaction()
+ 564 |             transaction.disablesAnimations = true
+ 565 |             withTransaction(transaction) {
+     |             `- warning: result of call to 'withTransaction' is unused [#no-usage]
+ 566 |                 expandedPassIDs.remove(pass.id)
+ 567 |             }
+
+swift/Views/Settings/ShaderWorkspaceView.swift:571:13: warning: result of call to 'withTransaction' is unused [#no-usage]
+ 569 |             var transaction = Transaction()
+ 570 |             transaction.disablesAnimations = true
+ 571 |             withTransaction(transaction) {
+     |             `- warning: result of call to 'withTransaction' is unused [#no-usage]
+ 572 |                 expandedPassIDs.insert(pass.id)
+ 573 |             }
+
+swift/Views/Settings/ShaderWorkspaceView.swift:593:13: warning: result of call to 'withTransaction' is unused [#no-usage]
+ 591 |             var transaction = Transaction()
+ 592 |             transaction.disablesAnimations = true
+ 593 |             withTransaction(transaction) {
+     |             `- warning: result of call to 'withTransaction' is unused [#no-usage]
+ 594 |                 expandedLayerIDs.insert(layer.id)
+ 595 |             }
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
