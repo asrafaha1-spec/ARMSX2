@@ -1,0 +1,5 @@
+   21 |         return path ? [dev newLibraryWithFile:path error:nullptr] : nullptr;
+  689 | - (nullable id <MTLLibrary>)newLibraryWithFile:(NSString *)filepath error:(__autoreleasing NSError **)error
+** BUILD SUCCEEDED **
+/Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLDevice.h:689:1: note: 'newLibraryWithFile:error:' has been explicitly marked deprecated here
+/Users/runner/work/ARMSX2/ARMSX2/pcsx2/GS/Renderers/Metal/GSMTLDeviceInfo.mm:21:21: warning: 'newLibraryWithFile:error:' is deprecated: first deprecated in iOS 16.0 - Use -newLibraryWithURL:error: instead [-Wdeprecated-declarations]
