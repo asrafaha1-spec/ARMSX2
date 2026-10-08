@@ -74,3 +74,18 @@ Originally as a curious idea the react native screens were just an experiment i 
 ```
 
 And now you will have a new button appear on the top right of the game selector screen click it and start developing with hot reload and see your changes without recompiling (note: compiling RN switches the emucore from static to shared).
+
+## iOS 16 support
+
+The iOS app deploys back to **iOS 16.0** (`ARMSX2_IOS_DEPLOYMENT_TARGET`, default `16.0`). It is still
+built with the iOS 26 SDK; newer-OS features sit behind runtime availability checks:
+
+- **SwiftUI frontend:** iOS 17 APIs (Observation, two-value `onChange`, `sensoryFeedback`, ...) go through the
+  shims in `swift/Models/Compat.swift`, and models use `ObservableObject`. iOS 26 Liquid Glass is used only on iOS 26+.
+- **libc++:** iOS 16.0-16.3 lack `std::__libcpp_verbose_abort` and the floating-point `std::to_chars`
+  overloads, so `LibcxxCompat.cpp` defines them in the app. CI fails if the binary imports them.
+- **Metal:** BC texture formats and `supportsBCTextureCompression` are iOS 16.4+, so they are guarded and BC
+  sampling is reported unavailable on older systems.
+- **JIT:** iOS 16-18 use the legacy (`CS_DEBUGGED`) JIT script protocol; the universal protocol is the default on iOS 26 only.
+
+The `Build iOS IPA (iOS 16+)` workflow builds an unsigned IPA from the `ios16-compat` branch.

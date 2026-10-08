@@ -19,13 +19,13 @@ class PadAfterTouch(unittest.TestCase):
             without_comments(read(NAVIGATION)),
             "private struct ControllerAccessibilityNavigationModifier",
         )
-        change = modifier.find(".onChange(of: controllerInput?.isControllerNavigationEnabled)")
+        change = modifier.find(".compatOnChange(of: controllerInput?.isControllerNavigationEnabled)")
         self.assertGreaterEqual(change, 0)
         self.assertIn("updateRegistration()", modifier[change:change + 200])
 
     def test_cheats_takes_its_capture_back(self):
         source = without_comments(read(CHEATS))
-        change = source.find(".onChange(of: controllerInput?.isControllerNavigationEnabled)")
+        change = source.find(".compatOnChange(of: controllerInput?.isControllerNavigationEnabled)")
         self.assertGreaterEqual(change, 0)
         self.assertIn("setNavigationCaptured(\n                    true", source[change:change + 300])
 

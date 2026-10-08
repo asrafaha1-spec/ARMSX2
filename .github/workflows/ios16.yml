@@ -81,6 +81,17 @@ jobs:
           /usr/libexec/PlistBuddy -c "Print :MinimumOSVersion" "$APP_PATH/Info.plist"
           vtool -show-build "$APP_PATH/ARMSX2iOS" | grep -E "minos|platform"
 
+      # iOS 16.0-16.3 ship a libc++ without std::__libcpp_verbose_abort and the floating-point
+      # std::to_chars overloads; importing either makes dyld refuse to launch the app. The
+      # LibcxxCompat.cpp shim defines them in the binary, so they must not be undefined imports.
+      - name: Check no iOS 16-missing libc++ symbols are imported
+        working-directory: platforms/ios/app/src/main/cpp
+        run: |
+          APP_PATH=$(find build -name "ARMSX2iOS.app" -type d | head -1)
+          if nm -u "$APP_PATH/ARMSX2iOS" | grep -E "__libcpp_verbose_abort|8to_chars"; then
+            echo "::error::Binary imports libc++ symbols missing from iOS 16.0-16.3"; exit 1
+          fi
+
       - name: Package unsigned .ipa
         working-directory: platforms/ios/app/src/main/cpp
         run: |

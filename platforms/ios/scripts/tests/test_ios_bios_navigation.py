@@ -28,7 +28,7 @@ class BIOSOnTheSharedNavigation(unittest.TestCase):
                     "handleControllerToolbarCommand", "latestLibraryEntryRequest"):
             with self.subTest(old=old):
                 self.assertNotIn(old, self.bios)
-        listeners = re.findall(r"\.onChange\(of: controllerInput\.latestEvent\)", self.bios)
+        listeners = re.findall(r"\.compatOnChange\(of: controllerInput\.latestEvent\)", self.bios)
         self.assertEqual(len(listeners), 1, "only the prompt listener should read raw events")
 
     def test_rows_and_toolbar_are_targets(self):

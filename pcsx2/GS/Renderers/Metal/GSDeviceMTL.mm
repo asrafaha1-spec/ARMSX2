@@ -47,7 +47,7 @@ static GSAdapterInfo GetMetalAdapterInfo(id<MTLDevice> dev)
 std::vector<GSAdapterInfo> GetMetalAdapterList()
 { @autoreleasepool {
 	std::vector<GSAdapterInfo> list;
-	// MTLCopyAllDevices only exists on iOS 18. We ship down to 17, where there's a
+	// MTLCopyAllDevices only exists on iOS 18. We ship down to 16, where there's a
 	// single GPU and nothing to enumerate anyway.
 	if (@available(macOS 10.11, iOS 18.0, *))
 	{
@@ -638,10 +638,12 @@ static constexpr MTLPixelFormat ConvertPixelFormat(GSTexture::Format format)
 		case GSTexture::Format::ColorClip:    return MTLPixelFormatRGBA16Unorm;
 		case GSTexture::Format::DepthStencil: return MTLPixelFormatDepth32Float_Stencil8;
 		case GSTexture::Format::Invalid:      return MTLPixelFormatInvalid;
-		case GSTexture::Format::BC1:          return MTLPixelFormatBC1_RGBA;
-		case GSTexture::Format::BC2:          return MTLPixelFormatBC2_RGBA;
-		case GSTexture::Format::BC3:          return MTLPixelFormatBC3_RGBA;
-		case GSTexture::Format::BC7:          return MTLPixelFormatBC7_RGBAUnorm;
+		// The BC pixel formats were added to iOS in 16.4; the features check below
+		// reports no BC support on older systems, so these are never requested there.
+		case GSTexture::Format::BC1:          if (@available(macOS 10.11, iOS 16.4, *)) { return MTLPixelFormatBC1_RGBA; } return MTLPixelFormatInvalid;
+		case GSTexture::Format::BC2:          if (@available(macOS 10.11, iOS 16.4, *)) { return MTLPixelFormatBC2_RGBA; } return MTLPixelFormatInvalid;
+		case GSTexture::Format::BC3:          if (@available(macOS 10.11, iOS 16.4, *)) { return MTLPixelFormatBC3_RGBA; } return MTLPixelFormatInvalid;
+		case GSTexture::Format::BC7:          if (@available(macOS 10.11, iOS 16.4, *)) { return MTLPixelFormatBC7_RGBAUnorm; } return MTLPixelFormatInvalid;
 		case GSTexture::Format::ASTC4x4:      return MTLPixelFormatASTC_4x4_LDR;
 		case GSTexture::Format::ASTC5x4:      return MTLPixelFormatASTC_5x4_LDR;
 		case GSTexture::Format::ASTC5x5:      return MTLPixelFormatASTC_5x5_LDR;
@@ -1372,7 +1374,10 @@ bool GSDeviceMTL::Create(GSVSyncMode vsync_mode, bool allow_present_throttle)
 	m_features.line_expand = false;
 	m_features.prefer_new_textures = true;
 	// Only Apple9 and some iPads sample BC on iOS; without it the replacement loader decodes on the CPU.
-	m_features.dxt_textures = [m_dev.dev supportsBCTextureCompression];
+	// supportsBCTextureCompression is iOS 16.4+; earlier systems have no BC sampling.
+	m_features.dxt_textures = false;
+	if (@available(macOS 10.11, iOS 16.4, *))
+		m_features.dxt_textures = [m_dev.dev supportsBCTextureCompression];
 	m_features.bptc_textures = m_features.dxt_textures;
 	// Every Apple GPU samples ASTC; a Mac with an Intel or AMD GPU does not.
 	m_features.astc_textures = [m_dev.dev supportsFamily:MTLGPUFamilyApple2];

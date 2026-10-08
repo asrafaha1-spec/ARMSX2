@@ -66,7 +66,7 @@ enum JITScriptProtocol: String, CaseIterable, Identifiable {
         case .universal:
             return "Uses brk #0xf00d prepare + detach."
         case .legacy:
-            return "Uses the iOS 17/18 scriptless/legacy JIT path."
+            return "Uses the iOS 16-18 scriptless/legacy JIT path."
         }
     }
 

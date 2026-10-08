@@ -183,6 +183,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
 		IOS/HostImpls.mm
 		IOS/PlaySoundAsync.mm
 		IOS/SceneDelegate.mm
+		# Provides std::__libcpp_verbose_abort and the floating-point std::to_chars
+		# overloads, which the system libc++ of iOS 16.0-16.3 does not export.
+		LibcxxCompat.cpp
 	)
 	# Only the bridge. The files in IOS_RUNTIME_SOURCES still release by hand, and
 	# test_ios_airplay.py pins one of those lines out of SceneDelegate.mm.

@@ -138,7 +138,7 @@ class SettingsDescriptorTests(unittest.TestCase):
         for name, prop in self.property_of.items():
             with self.subTest(setting=prop):
                 declared = next((l for l in self.lines
-                                 if re.match(rf"^\s*var {re.escape(prop)}\b", l)), None)
+                                 if re.match(rf"^\s*(?:@Published )?var {re.escape(prop)}\b", l)), None)
                 self.assertIsNotNone(declared, f"cannot find the declaration of {prop}")
                 observer = block(self.source, declared)
                 self.assertIn(f"commit(_{name}Config, {prop})", observer,
@@ -149,7 +149,7 @@ class SettingsDescriptorTests(unittest.TestCase):
         for name, (_, _, default) in self.descriptors.items():
             prop = self.property_of[name]
             # The declaration wraps onto a second line when the name is long.
-            declaration = re.search(rf"^\s*var {re.escape(prop)}(?::[^=]+)? = (.+?) \{{\s*didSet",
+            declaration = re.search(rf"^\s*(?:@Published )?var {re.escape(prop)}(?::[^=]+)? = (.+?) \{{\s*didSet",
                                     self.source, re.M)
             with self.subTest(setting=prop):
                 self.assertIsNotNone(declaration, f"cannot find the declaration of {prop}")
