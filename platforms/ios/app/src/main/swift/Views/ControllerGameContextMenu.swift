@@ -200,7 +200,7 @@ struct ControllerGameContextMenu: View {
                 .contentShape(RoundedRectangle(cornerRadius: isCompact ? 9 : 12))
             }
             .buttonStyle(.plain)
-            .focusEffectDisabled()
+            .compatFocusEffectDisabled()
             .controllerNavigationOrbTarget(
                 id: "context.play-or-stop",
                 isActive: playOrStopSelected,
@@ -317,7 +317,7 @@ struct ControllerGameContextMenu: View {
             )
         }
         .buttonStyle(.plain)
-        .focusEffectDisabled()
+        .compatFocusEffectDisabled()
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         // Read the final button bounds after its focus transform. Anchoring
         // inside the label omitted Button/List adjustments and displaced the
@@ -984,7 +984,7 @@ struct ControllerNavigationAlert: View {
                     ) {
                         onSelect(index)
                     }
-                    .focusEffectDisabled()
+                    .compatFocusEffectDisabled()
                     .accessibilityAddTraits(isSelected ? .isSelected : [])
                     .controllerNavigationOrbTarget(
                         id: "alert.\(action.id)",
@@ -1397,7 +1397,7 @@ struct StopGameConfirmation: View {
         ) {
             onSelect(index)
         }
-        .focusEffectDisabled()
+        .compatFocusEffectDisabled()
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 

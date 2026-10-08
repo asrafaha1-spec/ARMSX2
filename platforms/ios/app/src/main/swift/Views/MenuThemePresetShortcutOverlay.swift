@@ -6,6 +6,7 @@ import Foundation
 
 /// The toast uses the same travel curve as the focus box without adding a
 /// second display link or animating the entire theme transaction.
+@available(iOS 17.0, *)
 private struct ThemePresetFocusAnimation: CustomAnimation {
     let style: ControllerNavigationFocusTravelStyle
 
@@ -51,9 +52,12 @@ struct MenuThemePresetShortcutOverlay: View {
     private var focusAnimation: Animation? {
         guard !reduceMotion,
               settings.controllerNavigationFocusAnimation != .immediate else { return nil }
-        return Animation(ThemePresetFocusAnimation(
-            style: settings.controllerNavigationFocusAnimation
-        ))
+        let style = settings.controllerNavigationFocusAnimation
+        if #available(iOS 17.0, *) {
+            return Animation(ThemePresetFocusAnimation(style: style))
+        }
+        // CustomAnimation is iOS 17; an ease of the same length is the closest iOS 16 has.
+        return .easeInOut(duration: style.duration)
     }
 
     var body: some View {

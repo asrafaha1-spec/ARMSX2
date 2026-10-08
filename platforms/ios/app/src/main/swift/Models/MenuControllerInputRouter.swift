@@ -712,7 +712,7 @@ final class MenuControllerInputRouter: ObservableObject {
         schedulePendingNavigationSessionEntryIfReady()
     }
 
-    @Published private var frontmostManualNavigationCapture: (
+    private var frontmostManualNavigationCapture: (
         key: String,
         value: ManualNavigationCapture
     )? {
@@ -2028,7 +2028,7 @@ final class MenuControllerInputRouter: ObservableObject {
             }
     }
 
-    @Published private var frontmostNavigationSessionEntry: (
+    private var frontmostNavigationSessionEntry: (
         key: UUID,
         value: NavigationSessionTarget
     )? {

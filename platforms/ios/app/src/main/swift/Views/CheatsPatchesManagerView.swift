@@ -14,7 +14,7 @@ private struct CheatsControllerFocusModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .focusEffectDisabled()
+            .compatFocusEffectDisabled()
             .padding(.horizontal, 7)
             .foregroundStyle(isFocused ? accentColour : Color.primary)
             .background {

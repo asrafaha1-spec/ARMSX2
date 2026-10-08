@@ -271,13 +271,13 @@ struct BIOSListView: View {
                                     )
                             }
                         }
-                        .contentMargins(.top, 0, for: .scrollContent)
+                        .compatContentMargins(.top, 0, for: .scrollContent)
                         // The persistent tab bar already shortens this
                         // viewport through safeAreaInset. Do not inherit the
                         // menu-wide bottom scroll margin as an additional
                         // controller-navigable blank region.
-                        .contentMargins(.bottom, 0, for: .scrollContent)
-                        .scrollBounceBehavior(.always)
+                        .compatContentMargins(.bottom, 0, for: .scrollContent)
+                        .compatScrollBounceBehavior(.always)
                     }
                 } else {
                     List {
@@ -301,10 +301,10 @@ struct BIOSListView: View {
                                 .gameCardTintMenuBackgroundListRow(backgroundActive)
                         }
                     }
-                    .contentMargins(.top, 0, for: .scrollContent)
-                    .contentMargins(.bottom, 0, for: .scrollContent)
+                    .compatContentMargins(.top, 0, for: .scrollContent)
+                    .compatContentMargins(.bottom, 0, for: .scrollContent)
                     .scrollContentBackground(backgroundActive ? .hidden : .automatic)
-                    .scrollBounceBehavior(.always)
+                    .compatScrollBounceBehavior(.always)
 #if targetEnvironment(macCatalyst)
                     .listStyle(.inset)
 #endif
@@ -785,8 +785,8 @@ struct BIOSListView: View {
                 )
             }
             .buttonStyle(.plain)
-            .focusable(false)
-            .focusEffectDisabled()
+            .compatFocusable(false)
+            .compatFocusEffectDisabled()
             .accessibilityElement(children: .combine)
             .accessibilityLabel(settings.localized("Import BIOS"))
             .controllerAccessibilityActionTarget(

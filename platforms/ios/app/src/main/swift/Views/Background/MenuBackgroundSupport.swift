@@ -930,7 +930,7 @@ struct SettingsValueStepButtons: View {
                 .contentShape(Circle())
         }
         .buttonStyle(.bordered)
-        .buttonBorderShape(.circle)
+        .compatCircleButtonBorderShape()
         .disabled(!isEnabled)
         .accessibilityLabel(accessibilityLabel)
     }

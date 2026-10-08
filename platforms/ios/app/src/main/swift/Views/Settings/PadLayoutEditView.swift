@@ -1047,20 +1047,19 @@ private struct DraggableGroup: View {
                     dragOffset = .zero
                 }
         )
-        .simultaneousGesture(
-            MagnifyGesture()
-                .onChanged { v in
+        .compatSimultaneousMagnify(
+            onChanged: { magnification in
                     if !hasPushedSnapshot {
                         onBeginEdit()
                         hasPushedSnapshot = true
                     }
-                    currentScale = v.magnification
-                }
-                .onEnded { v in
+                currentScale = magnification
+            },
+            onEnded: { magnification in
                     hasPushedSnapshot = false
-                    updateScale(magnification: v.magnification)
+                updateScale(magnification: magnification)
                     currentScale = 1.0
-                }
+            }
         )
     }
 
@@ -1215,20 +1214,19 @@ private struct DraggableButton: View {
                     dragOffset = .zero
                 }
         )
-        .simultaneousGesture(
-            MagnifyGesture()
-                .onChanged { v in
+        .compatSimultaneousMagnify(
+            onChanged: { magnification in
                     if !hasPushedSnapshot {
                         onBeginEdit()
                         hasPushedSnapshot = true
                     }
-                    currentScale = v.magnification
-                }
-                .onEnded { v in
+                currentScale = magnification
+            },
+            onEnded: { magnification in
                     hasPushedSnapshot = false
-                    updateScale(magnification: v.magnification)
+                updateScale(magnification: magnification)
                     currentScale = 1.0
-                }
+            }
         )
     }
 

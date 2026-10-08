@@ -1160,7 +1160,7 @@ private struct GameLibraryNowRunningControllerFocusModifier: ViewModifier {
                     .foregroundStyle(action == .stop ? Color.red : Color.white)
             }
         }
-            .focusEffectDisabled()
+            .compatFocusEffectDisabled()
             .controllerNavigationOrbTarget(
                 id: "library.now-running.\(action.rawValue)",
                 isActive: isFocused,
@@ -2024,7 +2024,7 @@ private struct GameLibraryControllerFocusModifier: ViewModifier {
             let selectedScale = focusedScale
                 ?? (performanceOptimized ? 1.08 : 1.12)
             content
-                .focusEffectDisabled()
+                .compatFocusEffectDisabled()
                 .scaleEffect(
                     isFocused ? selectedScale : 1
                 )
@@ -4161,12 +4161,12 @@ struct GameListView: View {
                         )
                 }
             }
-            .contentMargins(.top, 0, for: .scrollContent)
+            .compatContentMargins(.top, 0, for: .scrollContent)
             .scrollIndicators(.hidden)
             .modifier(GameLibraryListTopEdgeEffectModifier())
             .scrollContentBackground(.hidden)
             .scrollDisabled(false)
-            .scrollBounceBehavior(.always)
+            .compatScrollBounceBehavior(.always)
             .trackGameLibraryScrollPhase(gameLibraryActivity)
             .transaction { transaction in
                 if transaction.isContinuous || gameLibraryActivity.isScrolling {
@@ -4284,10 +4284,10 @@ struct GameListView: View {
                 }
                 .padding(.top, showsPageOwnedLargeTitle ? 0 : 12)
             }
-            .contentMargins(.top, 0, for: .scrollContent)
+            .compatContentMargins(.top, 0, for: .scrollContent)
             .scrollIndicators(.hidden)
             .scrollDisabled(false)
-            .scrollBounceBehavior(.always)
+            .compatScrollBounceBehavior(.always)
             .trackGameLibraryScrollPhase(gameLibraryActivity)
             .transaction { transaction in
                 if transaction.isContinuous || gameLibraryActivity.isScrolling {
@@ -4353,10 +4353,10 @@ struct GameListView: View {
                     )
             }
         }
-        .contentMargins(.top, 0, for: .scrollContent)
+        .compatContentMargins(.top, 0, for: .scrollContent)
         .scrollIndicators(.hidden)
         .scrollDisabled(false)
-        .scrollBounceBehavior(.always)
+        .compatScrollBounceBehavior(.always)
         .background(
             Group {
                 if hasCustomBackground {
@@ -4470,7 +4470,7 @@ struct GameListView: View {
                             )
                     }
                     }
-                    .scrollTargetLayout()
+                    .compatScrollTargetLayout()
                     .frame(
                         minWidth: max(0, containerSize.width - (horizontalPadding * 2)),
                         minHeight: max(0, availableHeight - (metrics.verticalPadding * 2)),
@@ -4502,7 +4502,7 @@ struct GameListView: View {
                 }
                 .scrollIndicators(.hidden)
                 .scrollDisabled(false)
-                .scrollBounceBehavior(.always, axes: .horizontal)
+                .compatScrollBounceBehavior(.always, axes: .horizontal)
                 .trackGameLibraryScrollPhase(gameLibraryActivity)
                 .transaction { transaction in
                     if transaction.isContinuous {
@@ -7124,7 +7124,7 @@ struct GameListView: View {
                                 isStopping ? criticalTextColour : accentColour
                             )
                             .font(.title)
-                            .contentTransition(.symbolEffect(.replace))
+                            .compatSymbolContentTransition()
 
                         RunningStatusText(
                             isStopping: isStopping,
@@ -8065,11 +8065,8 @@ struct GameListView: View {
         } label: {
             if settings.favoriteGlowingEffectEnabled {
                 icon
-                    .contentTransition(.symbolEffect)
-                    .symbolEffect(
-                        .bounce,
-                        value: favoriteAnimationValues[game.id, default: 0]
-                    )
+                    .compatSymbolContentTransition(replace: false)
+                    .compatBounceSymbol(value: favoriteAnimationValues[game.id, default: 0])
             } else {
                 icon
             }
@@ -8149,7 +8146,7 @@ struct GameListView: View {
                     .foregroundStyle(
                         isStopping ? criticalTextColour : accentColour
                     )
-                    .contentTransition(.symbolEffect(.replace))
+                    .compatSymbolContentTransition()
 
                 RunningStatusText(
                     isStopping: isStopping,
@@ -8223,7 +8220,7 @@ struct GameListView: View {
                     .foregroundStyle(
                         isStopping ? criticalTextColour : accentColour
                     )
-                    .contentTransition(.symbolEffect(.replace))
+                    .compatSymbolContentTransition()
 
                 RunningStatusText(
                     isStopping: isStopping,
@@ -8930,7 +8927,7 @@ struct GameListView: View {
                 )
             }
             .buttonStyle(.plain)
-            .focusEffectDisabled()
+            .compatFocusEffectDisabled()
             .accessibilityAddTraits(controllerFocused ? .isSelected : [])
             .modifier(
                 GameLibraryControllerFocusModifier(

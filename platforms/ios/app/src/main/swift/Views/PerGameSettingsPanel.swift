@@ -1148,7 +1148,7 @@ struct PerGameSettingsPanel: View {
                     ) {
                         enterControllerDetail(category)
                     }
-                    .focusEffectDisabled()
+                    .compatFocusEffectDisabled()
                 }
             }
             .padding(.vertical, 8)
@@ -1208,7 +1208,7 @@ struct PerGameSettingsPanel: View {
                     ) {
                         enterControllerDetail(category)
                     }
-                    .focusEffectDisabled()
+                    .compatFocusEffectDisabled()
                 }
             }
         }

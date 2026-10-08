@@ -912,9 +912,9 @@ struct SettingsRootView: View {
         }
         // The tail row clears the tab bar. Zero keeps RootView's library margin
         // from adding a second, empty scroll range below Help.
-        .contentMargins(.bottom, 0, for: .scrollContent)
+        .compatContentMargins(.bottom, 0, for: .scrollContent)
         .scrollDisabled(false)
-        .scrollBounceBehavior(.always)
+        .compatScrollBounceBehavior(.always)
         .scrollPosition(id: $rootScrollPositionID, anchor: .top)
         .compatOnChange(of: rootScrollPositionID) { _, _ in
             // SwiftUI updates this binding for direct-finger scrolling as
@@ -1000,7 +1000,7 @@ struct SettingsRootView: View {
             if navigationPath.last == pane {
                 presentedSettingsDetail(for: pane)
                 // The safe area spacer already clears the tab bar.
-                .contentMargins(.bottom, 0, for: .scrollContent)
+                .compatContentMargins(.bottom, 0, for: .scrollContent)
                 .background {
                     if pane != .appearance {
                         settingsRightStickScrollTarget(

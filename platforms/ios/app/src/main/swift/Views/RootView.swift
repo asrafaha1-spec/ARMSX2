@@ -2170,7 +2170,7 @@ struct MenuTabView: View {
                     menuLargeTitleMorphActive
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .contentMargins(
+                .compatContentMargins(
                     .bottom,
                     tabContentBottomMargin,
                     for: .scrollContent
@@ -2698,7 +2698,7 @@ private struct LegacyGlassMenuTabBar: View {
                     }
                 }
                 .buttonStyle(LegacyGlassTabButtonStyle())
-                .focusEffectDisabled()
+                .compatFocusEffectDisabled()
                 .accessibilityLabel(
                     titles.indices.contains(index) ? titles[index] : ""
                 )

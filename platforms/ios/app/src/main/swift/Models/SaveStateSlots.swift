@@ -275,7 +275,7 @@ final class SaveStateUndoModel: ObservableObject {
         item = next
         duration = Double(SettingsStore.shared.undoSeconds)
         remaining = duration
-        if let announcement { AccessibilityNotification.Announcement(announcement).post() }
+        if let announcement { CompatAccessibility.announce(announcement) }
         timer = Task { [weak self] in
             while let self, !Task.isCancelled, self.item?.id == next.id {
                 try? await Task.sleep(for: .milliseconds(100))

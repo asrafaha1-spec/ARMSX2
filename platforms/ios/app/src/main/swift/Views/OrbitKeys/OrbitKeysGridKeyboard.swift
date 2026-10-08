@@ -342,7 +342,7 @@ private struct OrbitKeysCellView: View {
       .contentTransition(.numericText())
     }
     .buttonStyle(.plain)
-    .buttonRepeatBehavior(isSelected ? .enabled : .disabled)
+    .compatButtonRepeat(isSelected)
     .accessibilityLabel("\(face.rawValue), \(key.label)")
     .accessibilityHint("Selects \(key.label) in the \(position.spokenName) group")
   }
