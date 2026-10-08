@@ -39,7 +39,12 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
 	endif()
 	option(ARMSX2_ENABLE_JIT_ENTITLEMENTS "Attach the Apple JIT entitlement file for provisioning profiles which allow it" ${ARMSX2_JIT_ENTITLEMENTS_DEFAULT})
 	option(ARMSX2_IOS_DSYM "Emit a .dSYM for crash symbolication (injects -g into Release; costs link time + artifact size)" OFF)
-	set(ARMSX2_IOS_DEPLOYMENT_TARGET "17.4" CACHE STRING "Minimum iOS deployment target")
+	# iOS 16.0 is the floor. The SwiftUI frontend is written against iOS 17 (Observation,
+	# two-value onChange, sensoryFeedback ...) and iOS 26 (Liquid Glass); those go through
+	# the shims in swift/Models/Compat.swift and availability checks, so newer systems get
+	# the real APIs and iOS 16 gets the closest fallback. Keep this equal to the deployment
+	# target the Swift sources are checked against.
+	set(ARMSX2_IOS_DEPLOYMENT_TARGET "16.0" CACHE STRING "Minimum iOS deployment target")
 	set(CMAKE_OSX_DEPLOYMENT_TARGET "${ARMSX2_IOS_DEPLOYMENT_TARGET}" CACHE STRING "Minimum iOS deployment target" FORCE)
 	set(ARMSX2_MACOS_DEPLOYMENT_TARGET "15.0" CACHE STRING "Minimum Mac Catalyst deployment target")
 	if(ARMSX2_REAL_DEVICE OR ARMSX2_MAC_CATALYST)

@@ -24,11 +24,12 @@ private final class TaskTap: NSObject, URLSessionTaskDelegate {
 }
 
 struct TextureCatalogView: View {
+    @ObservedObject private var observedControllerPrompt = ControllerPrompt.shared
     // Set in per-game settings, where only that game's packs are listed.
     private let serial: String?
-    private let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional private var controllerInput: MenuControllerInputRouter?
     @Environment(\.dismiss) private var dismiss
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
     @State private var packs: [TextureCatalogPack]?
     @State private var loadFailed = false
     @State private var owned: Set<String> = []

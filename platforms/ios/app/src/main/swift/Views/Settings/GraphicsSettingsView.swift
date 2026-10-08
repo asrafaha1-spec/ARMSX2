@@ -4,8 +4,8 @@
 import SwiftUI
 
 struct GraphicsSettingsView: View {
-    @State private var settings = SettingsStore.shared
-    @State private var appState = AppState.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var appState = AppState.shared
     @State private var showingShaderSettings = false
     @State private var showShaderCacheClearConfirm = false
     @State private var shaderCacheResult: String?

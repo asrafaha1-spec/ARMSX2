@@ -711,7 +711,7 @@ struct ControllerNavigationOrbField: View {
                 )
             ]
         }
-        .onChange(of: speedMultiplier) { _, newValue in
+        .compatOnChange(of: speedMultiplier) { _, newValue in
             guard phaseTimeOverride == nil else { return }
             let now = Date.timeIntervalSinceReferenceDate
             speedPrograms.append(
@@ -724,7 +724,7 @@ struct ControllerNavigationOrbField: View {
             )
             trimPrograms(&speedPrograms, limit: 32)
         }
-        .onChange(of: dispersion) { _, newValue in
+        .compatOnChange(of: dispersion) { _, newValue in
             guard dispersionOverride == nil else { return }
             let now = Date.timeIntervalSinceReferenceDate
             dispersionPrograms.append(
@@ -737,7 +737,7 @@ struct ControllerNavigationOrbField: View {
             )
             trimPrograms(&dispersionPrograms, limit: 32)
         }
-        .onChange(of: reaction) { _, newValue in
+        .compatOnChange(of: reaction) { _, newValue in
             guard reactionStateOverride == nil,
                   let newValue,
                   !reduceMotion else { return }
@@ -2635,8 +2635,8 @@ struct ControllerFocusBox: View {
     var animatesArtwork = true
     var shape: ControllerFocusBoxShape = .pill
 
-    @State private var settings = SettingsStore.shared
-    @State private var gameCoverThemePreview = GameCoverThemePreviewStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var gameCoverThemePreview = GameCoverThemePreviewStore.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
@@ -2680,8 +2680,8 @@ struct ControllerFocusBox: View {
 struct ControllerBottomNavigationFocusGlow: View {
     var cornerRadius: CGFloat = 18
 
-    @State private var settings = SettingsStore.shared
-    @State private var gameCoverThemePreview = GameCoverThemePreviewStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var gameCoverThemePreview = GameCoverThemePreviewStore.shared
 
     var body: some View {
         GeometryReader { proxy in
@@ -3866,7 +3866,7 @@ struct ControllerNavigationAnimatedOrbField: View {
     let targetFrame: CGRect
     let primaryColor: Color
     let style: ControllerNavigationOrbStyle
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     var interactionOverride: ControllerNavigationOrbInteraction? = nil
     var accentColor: Color = .white
     var inset: CGFloat = 2
@@ -3880,9 +3880,9 @@ struct ControllerNavigationAnimatedOrbField: View {
     var neonShape: ControllerFocusBoxShape = .pill
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var settings = SettingsStore.shared
-    @State private var frameRates = UIFrameRateSettings.shared
-    @State private var gameCoverThemePreview = GameCoverThemePreviewStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var frameRates = UIFrameRateSettings.shared
+    @ObservedObject private var gameCoverThemePreview = GameCoverThemePreviewStore.shared
     @State private var lastTargetID: String?
     @State private var lastResolvedTargetFrame: CGRect?
     @State private var frameTransitions: [ControllerNavigationOrbFrameTransition] = []
@@ -3929,27 +3929,27 @@ struct ControllerNavigationAnimatedOrbField: View {
             retarget(to: MotionTarget(id: targetID, frame: targetFrame))
             updateOrbActivity(isEnabled: showsOrbs)
         }
-        .onChange(of: MotionTarget(id: targetID, frame: targetFrame)) { _, next in
+        .compatOnChange(of: MotionTarget(id: targetID, frame: targetFrame)) { _, next in
             retarget(to: next)
         }
-        .onChange(of: tracksTargetFrameDirectly) { _, tracksDirectly in
+        .compatOnChange(of: tracksTargetFrameDirectly) { _, tracksDirectly in
             guard tracksDirectly else { return }
             retarget(to: MotionTarget(id: targetID, frame: targetFrame))
         }
-        .onChange(of: resolvedFocusTravelStyle) { _, _ in
+        .compatOnChange(of: resolvedFocusTravelStyle) { _, _ in
             // Settle an in-flight effect before the new choice takes over.
             // The session still owns any currently scrolling geometry.
             setFrameDirectly(targetFrame, at: Date.timeIntervalSinceReferenceDate)
         }
-        .onChange(of: reduceMotion) { _, reducesMotion in
+        .compatOnChange(of: reduceMotion) { _, reducesMotion in
             if reducesMotion {
                 setFrameDirectly(targetFrame, at: Date.timeIntervalSinceReferenceDate)
             }
         }
-        .onChange(of: showsOrbs) { _, isEnabled in
+        .compatOnChange(of: showsOrbs) { _, isEnabled in
             updateOrbActivity(isEnabled: isEnabled)
         }
-        .onChange(of: showsOrbs ? resolvedInteraction : nil) { _, interaction in
+        .compatOnChange(of: showsOrbs ? resolvedInteraction : nil) { _, interaction in
             guard let interaction else { return }
             react(to: interaction.command)
         }
@@ -4610,9 +4610,9 @@ struct ControllerNavigationAnimatedOrbField: View {
 /// from the field's currently displayed position instead of creating a new field.
 private struct ControllerNavigationMovingOrbOverlay: View {
     let target: ControllerNavigationResolvedOrbTarget?
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
 
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
     @State private var displayedTarget: ControllerNavigationResolvedOrbTarget?
     @State private var isVisible = false
     @State private var removalTask: Task<Void, Never>?
@@ -4651,7 +4651,7 @@ private struct ControllerNavigationMovingOrbOverlay: View {
         .onAppear {
             updateDisplayedTarget(target)
         }
-        .onChange(of: target) { _, next in
+        .compatOnChange(of: target) { _, next in
             updateDisplayedTarget(next)
         }
         .onDisappear {
@@ -4738,7 +4738,7 @@ private struct ControllerNavigationOrbTargetModifier: ViewModifier {
 }
 
 private struct ControllerNavigationOrbOverlayHostModifier: ViewModifier {
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
 
     func body(content: Content) -> some View {
         content.overlayPreferenceValue(

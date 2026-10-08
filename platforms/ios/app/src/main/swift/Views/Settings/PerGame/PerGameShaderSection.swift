@@ -13,7 +13,7 @@ struct PerGameShaderSection: View {
     let enabled: Bool
     @Binding var chain: Int
     @Binding var presetRef: String
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
     let onBrowse: () -> Void
     var showsClearPresetAction = true
 

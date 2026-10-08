@@ -8,8 +8,8 @@ struct SaveStatesPanel: View {
     @Environment(\.menuControllerInputRouter) private var controllerInput
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
-    let settings: SettingsStore
-    let undo: SaveStateUndoModel
+    @ObservedObject var settings: SettingsStore
+    @ObservedObject var undo: SaveStateUndoModel
     let variant: PauseLayoutVariant
     let landscape: Bool
     let gameTitle: String?
@@ -205,7 +205,7 @@ struct SaveStatesPanel: View {
             .presentationBackground(.clear)
             .appStatusBarHidden()
         }
-        .onChange(of: landscape) { _, _ in
+        .compatOnChange(of: landscape) { _, _ in
             // The menu is anchored to a row that a new layout may have scrolled away.
             if menuSlot != nil { closeMenu() }
         }
@@ -785,7 +785,7 @@ struct SaveStateGraph {
 private struct SaveStateRowView: View {
     let row: SaveStateSlot
     let layout: SaveStateRowLayout
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
     let isLatest: Bool
     let isBusy: Bool
     let hardcore: Bool
@@ -1207,7 +1207,7 @@ private struct SaveStateMenuView: View {
 /// Up to 32 characters. With a controller the name is typed on OrbitKeys, which has no limit
 /// of its own, so the name is cut when it comes back.
 private struct SaveStateRenameCard: View {
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
     let title: String
     let placeholder: String
     let wide: Bool
@@ -1255,7 +1255,7 @@ private struct SaveStateRenameCard: View {
                     .foregroundStyle(OverlayTheme.textPrimary)
                     .submitLabel(.done)
                     .onSubmit(onConfirm)
-                    .onChange(of: text) { _, value in
+                    .compatOnChange(of: text) { _, value in
                         if value.count > SaveStateSlot.nameLimit {
                             text = String(value.prefix(SaveStateSlot.nameLimit))
                         }
@@ -1309,7 +1309,7 @@ private struct SaveStateRenameCard: View {
 
 /// The same settings as in Settings > Emulator.
 private struct SaveStateAutoSaveCard: View {
-    @Bindable var settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
     let ids: (enabled: String, interval: String, leave: String, battery: String, done: String)
     let onDone: () -> Void
 
@@ -1379,8 +1379,8 @@ private struct SaveStateAutoSaveCard: View {
 
 /// After a load, delete or save-over: what happened, and an Undo that lasts as long as Settings says.
 struct SaveStateUndoToast: View {
-    let undo: SaveStateUndoModel
-    let settings: SettingsStore
+    @ObservedObject var undo: SaveStateUndoModel
+    @ObservedObject var settings: SettingsStore
     let hint: ControllerHintLine?
     let onUndo: () -> Void
 
@@ -1449,7 +1449,7 @@ struct SaveStateUndoToast: View {
             .accessibilityElement(children: .contain)
             .accessibilityFocused($focused)
             .accessibilityAction(.escape) { undo.finish() }
-            .onChange(of: focused) { _, value in undo.focusHeld = value }
+            .compatOnChange(of: focused) { _, value in undo.focusHeld = value }
         }
     }
 }

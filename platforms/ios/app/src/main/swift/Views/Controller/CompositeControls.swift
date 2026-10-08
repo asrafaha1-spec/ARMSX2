@@ -212,6 +212,8 @@ struct DirectionalFaceArt {
 }
 
 struct CompositeDPadView: View {
+    @ObservedObject private var observedEmulatorBridge = EmulatorBridge.shared
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     let faces: [CompositeDPadFaceInfo]
     let centroid: CGPoint
     let captureDiameter: CGFloat
@@ -527,6 +529,8 @@ private struct CompositeFaceTouchSurface: UIViewRepresentable {
 // buttons; the union of active touches is pressed. Buttons leaving the union
 // release immediately so no press goes stale.
 struct CompositeFaceView: View {
+    @ObservedObject private var observedEmulatorBridge = EmulatorBridge.shared
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     let faces: [CompositeFaceButtonInfo]
     let centroid: CGPoint
     let captureDiameter: CGFloat

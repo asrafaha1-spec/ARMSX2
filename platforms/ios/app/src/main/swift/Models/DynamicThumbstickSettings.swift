@@ -176,81 +176,80 @@ enum DynamicCrosshairAnimation: Int, CaseIterable, Identifiable {
 }
 
 @MainActor
-@Observable
-final class DynamicThumbstickSettings {
+final class DynamicThumbstickSettings: ObservableObject {
     static let shared = DynamicThumbstickSettings()
     private static let section = "ARMSX2iOS/DynamicThumbsticks"
 
-    var legacyThumbsticks: Bool { didSet { setBool("LegacyThumbsticks", legacyThumbsticks) } }
-    var dynamicThumbsticks: Bool { didSet { setBool("DynamicThumbsticks", dynamicThumbsticks) } }
-    var swipeCamera: Bool { didSet { setBool("SwipeCamera", swipeCamera) } }
-    var gyroscopeCamera: Bool { didSet { setBool("GyroscopeCamera", gyroscopeCamera) } }
+    @Published var legacyThumbsticks: Bool { didSet { setBool("LegacyThumbsticks", legacyThumbsticks) } }
+    @Published var dynamicThumbsticks: Bool { didSet { setBool("DynamicThumbsticks", dynamicThumbsticks) } }
+    @Published var swipeCamera: Bool { didSet { setBool("SwipeCamera", swipeCamera) } }
+    @Published var gyroscopeCamera: Bool { didSet { setBool("GyroscopeCamera", gyroscopeCamera) } }
 
-    var movementSensitivity: Double { didSet { setDouble("MovementSensitivity", movementSensitivity) } }
-    var lookSensitivity: Double { didSet { setDouble("LookSensitivity", lookSensitivity) } }
-    var swipeSensitivity: Double { didSet { setDouble("SwipeSensitivity", swipeSensitivity) } }
-    var swipeHorizontalSensitivity: Double {
+    @Published var movementSensitivity: Double { didSet { setDouble("MovementSensitivity", movementSensitivity) } }
+    @Published var lookSensitivity: Double { didSet { setDouble("LookSensitivity", lookSensitivity) } }
+    @Published var swipeSensitivity: Double { didSet { setDouble("SwipeSensitivity", swipeSensitivity) } }
+    @Published var swipeHorizontalSensitivity: Double {
         didSet { setDouble("SwipeHorizontalSensitivity", swipeHorizontalSensitivity) }
     }
-    var swipeVerticalSensitivity: Double {
+    @Published var swipeVerticalSensitivity: Double {
         didSet { setDouble("SwipeVerticalSensitivity", swipeVerticalSensitivity) }
     }
-    var swipeSensitivityWhileAimingEnabled: Bool {
+    @Published var swipeSensitivityWhileAimingEnabled: Bool {
         didSet { setBool("SwipeSensitivityWhileAimingEnabled", swipeSensitivityWhileAimingEnabled) }
     }
-    var swipeSensitivityWhileAiming: Double {
+    @Published var swipeSensitivityWhileAiming: Double {
         didSet { setDouble("SwipeSensitivityWhileAiming", swipeSensitivityWhileAiming) }
     }
-    var swipeHorizontalSensitivityWhileAiming: Double {
+    @Published var swipeHorizontalSensitivityWhileAiming: Double {
         didSet { setDouble("SwipeHorizontalSensitivityWhileAiming", swipeHorizontalSensitivityWhileAiming) }
     }
-    var swipeVerticalSensitivityWhileAiming: Double {
+    @Published var swipeVerticalSensitivityWhileAiming: Double {
         didSet { setDouble("SwipeVerticalSensitivityWhileAiming", swipeVerticalSensitivityWhileAiming) }
     }
-    var swipeSensitivityWhileNotAimingEnabled: Bool {
+    @Published var swipeSensitivityWhileNotAimingEnabled: Bool {
         didSet { setBool("SwipeSensitivityWhileNotAimingEnabled", swipeSensitivityWhileNotAimingEnabled) }
     }
-    var swipeSensitivityWhileNotAiming: Double {
+    @Published var swipeSensitivityWhileNotAiming: Double {
         didSet { setDouble("SwipeSensitivityWhileNotAiming", swipeSensitivityWhileNotAiming) }
     }
-    var swipeHorizontalSensitivityWhileNotAiming: Double {
+    @Published var swipeHorizontalSensitivityWhileNotAiming: Double {
         didSet { setDouble("SwipeHorizontalSensitivityWhileNotAiming", swipeHorizontalSensitivityWhileNotAiming) }
     }
-    var swipeVerticalSensitivityWhileNotAiming: Double {
+    @Published var swipeVerticalSensitivityWhileNotAiming: Double {
         didSet { setDouble("SwipeVerticalSensitivityWhileNotAiming", swipeVerticalSensitivityWhileNotAiming) }
     }
-    var gyroSensitivity: Double { didSet { setDouble("GyroSensitivity", gyroSensitivity) } }
-    var gyroAcceleration: Double { didSet { setDouble("GyroAcceleration", gyroAcceleration) } }
-    var gyroSmoothing: Double { didSet { setDouble("GyroSmoothing", gyroSmoothing) } }
-    var gyroDeadZone: Double { didSet { setDouble("GyroDeadZone", gyroDeadZone) } }
-    var gyroMaximumRate: Double { didSet { setDouble("GyroMaximumRate", gyroMaximumRate) } }
-    var invertGyroHorizontal: Bool { didSet { setBool("InvertGyroHorizontal", invertGyroHorizontal) } }
-    var invertGyroVertical: Bool { didSet { setBool("InvertGyroVertical", invertGyroVertical) } }
+    @Published var gyroSensitivity: Double { didSet { setDouble("GyroSensitivity", gyroSensitivity) } }
+    @Published var gyroAcceleration: Double { didSet { setDouble("GyroAcceleration", gyroAcceleration) } }
+    @Published var gyroSmoothing: Double { didSet { setDouble("GyroSmoothing", gyroSmoothing) } }
+    @Published var gyroDeadZone: Double { didSet { setDouble("GyroDeadZone", gyroDeadZone) } }
+    @Published var gyroMaximumRate: Double { didSet { setDouble("GyroMaximumRate", gyroMaximumRate) } }
+    @Published var invertGyroHorizontal: Bool { didSet { setBool("InvertGyroHorizontal", invertGyroHorizontal) } }
+    @Published var invertGyroVertical: Bool { didSet { setBool("InvertGyroVertical", invertGyroVertical) } }
 
-    var thumbstickRadius: Double { didSet { setDouble("ThumbstickRadius", thumbstickRadius) } }
-    var leftThumbstickAreaScale: Double {
+    @Published var thumbstickRadius: Double { didSet { setDouble("ThumbstickRadius", thumbstickRadius) } }
+    @Published var leftThumbstickAreaScale: Double {
         didSet { setDouble("LeftThumbstickAreaScale", leftThumbstickAreaScale) }
     }
-    var rightThumbstickAreaScale: Double {
+    @Published var rightThumbstickAreaScale: Double {
         didSet { setDouble("RightThumbstickAreaScale", rightThumbstickAreaScale) }
     }
-    var deadZone: Double { didSet { setDouble("DeadZone", deadZone) } }
-    var leftInstantDeadzoneEnabled: Bool {
+    @Published var deadZone: Double { didSet { setDouble("DeadZone", deadZone) } }
+    @Published var leftInstantDeadzoneEnabled: Bool {
         didSet { setBool("LeftInstantDeadzoneEnabled", leftInstantDeadzoneEnabled) }
     }
-    var leftNegativeDeadzone: Double {
+    @Published var leftNegativeDeadzone: Double {
         didSet { setDouble("LeftNegativeDeadzone", leftNegativeDeadzone) }
     }
-    var rightInstantDeadzoneEnabled: Bool {
+    @Published var rightInstantDeadzoneEnabled: Bool {
         didSet { setBool("RightInstantDeadzoneEnabled", rightInstantDeadzoneEnabled) }
     }
-    var rightNegativeDeadzone: Double {
+    @Published var rightNegativeDeadzone: Double {
         didSet { setDouble("RightNegativeDeadzone", rightNegativeDeadzone) }
     }
-    var convertSwipeToDynamicJoystick: Bool {
+    @Published var convertSwipeToDynamicJoystick: Bool {
         didSet { setBool("ConvertSwipeToDynamicJoystick", convertSwipeToDynamicJoystick) }
     }
-    var convertIntoDynamicThumbstickThreshold: Double {
+    @Published var convertIntoDynamicThumbstickThreshold: Double {
         didSet {
             setDouble(
                 "ConvertIntoDynamicThumbstickThreshold",
@@ -258,60 +257,60 @@ final class DynamicThumbstickSettings {
             )
         }
     }
-    var pullingBackDistance: Double {
+    @Published var pullingBackDistance: Double {
         didSet { setDouble("PullingBackDistance", pullingBackDistance) }
     }
-    var thumbstickOpacity: Double { didSet { setDouble("ThumbstickOpacity", thumbstickOpacity) } }
-    var baseOpacity: Double { didSet { setDouble("BaseOpacity", baseOpacity) } }
-    var trailOpacity: Double { didSet { setDouble("TrailOpacity", trailOpacity) } }
-    var activationHaptics: Bool { didSet { setBool("ActivationHaptics", activationHaptics) } }
+    @Published var thumbstickOpacity: Double { didSet { setDouble("ThumbstickOpacity", thumbstickOpacity) } }
+    @Published var baseOpacity: Double { didSet { setDouble("BaseOpacity", baseOpacity) } }
+    @Published var trailOpacity: Double { didSet { setDouble("TrailOpacity", trailOpacity) } }
+    @Published var activationHaptics: Bool { didSet { setBool("ActivationHaptics", activationHaptics) } }
 
-    var leftThumbstickActionsEnabled: Bool { didSet { setBool("LeftThumbstickActionsEnabled", leftThumbstickActionsEnabled) } }
-    var rightThumbstickActionsEnabled: Bool { didSet { setBool("DynamicThumbstickActionsEnabled", rightThumbstickActionsEnabled) } }
-    var holdAimWhileSwipe: Bool { didSet { setBool("HoldAimWhileSwipe", holdAimWhileSwipe) } }
-    var doubleTapToHoldAim: Bool { didSet { setBool("DoubleTapToHoldAim", doubleTapToHoldAim) } }
-    var singleTapActionOnNonAimMode: Bool {
+    @Published var leftThumbstickActionsEnabled: Bool { didSet { setBool("LeftThumbstickActionsEnabled", leftThumbstickActionsEnabled) } }
+    @Published var rightThumbstickActionsEnabled: Bool { didSet { setBool("DynamicThumbstickActionsEnabled", rightThumbstickActionsEnabled) } }
+    @Published var holdAimWhileSwipe: Bool { didSet { setBool("HoldAimWhileSwipe", holdAimWhileSwipe) } }
+    @Published var doubleTapToHoldAim: Bool { didSet { setBool("DoubleTapToHoldAim", doubleTapToHoldAim) } }
+    @Published var singleTapActionOnNonAimMode: Bool {
         didSet { setBool("SingleTapActionOnNonAimMode", singleTapActionOnNonAimMode) }
     }
-    var actionsOnNonAimMode: Bool { didSet { setBool("ActionsOnNonAimMode", actionsOnNonAimMode) } }
-    var tapToFire: Bool { didSet { setBool("TapToFire", tapToFire) } }
-    var rapidTapFireEnabled: Bool { didSet { setBool("RapidTapFireEnabled", rapidTapFireEnabled) } }
-    var releaseFireWhenTouchEnds: Bool { didSet { setBool("ReleaseFireWhenTouchEnds", releaseFireWhenTouchEnds) } }
-    var extendFireWhileDragging: Bool { didSet { setBool("ExtendFireWhileDragging", extendFireWhileDragging) } }
-    var aimReleaseDelay: Double { didSet { setDouble("AimReleaseDelay", aimReleaseDelay) } }
-    var doubleTapWindow: Double { didSet { setDouble("DoubleTapWindow", doubleTapWindow) } }
-    var tapMaximumDuration: Double { didSet { setDouble("TapMaximumDuration", tapMaximumDuration) } }
-    var tapTravelTolerance: Double { didSet { setDouble("TapTravelTolerance", tapTravelTolerance) } }
-    var rapidTapWindow: Double { didSet { setDouble("RapidTapWindow", rapidTapWindow) } }
-    var rapidTapActivationCount: Int { didSet { setInt("RapidTapActivationCount", rapidTapActivationCount) } }
-    var fireReleaseDelay: Double { didSet { setDouble("FireReleaseDelay", fireReleaseDelay) } }
-    var automaticFireInterval: Double { didSet { setDouble("AutomaticFireInterval", automaticFireInterval) } }
-    var dynamicCrosshairEnabled: Bool { didSet { setBool("DynamicCrosshairEnabled", dynamicCrosshairEnabled) } }
-    var showCrosshairWhileHoldingSwipe: Bool {
+    @Published var actionsOnNonAimMode: Bool { didSet { setBool("ActionsOnNonAimMode", actionsOnNonAimMode) } }
+    @Published var tapToFire: Bool { didSet { setBool("TapToFire", tapToFire) } }
+    @Published var rapidTapFireEnabled: Bool { didSet { setBool("RapidTapFireEnabled", rapidTapFireEnabled) } }
+    @Published var releaseFireWhenTouchEnds: Bool { didSet { setBool("ReleaseFireWhenTouchEnds", releaseFireWhenTouchEnds) } }
+    @Published var extendFireWhileDragging: Bool { didSet { setBool("ExtendFireWhileDragging", extendFireWhileDragging) } }
+    @Published var aimReleaseDelay: Double { didSet { setDouble("AimReleaseDelay", aimReleaseDelay) } }
+    @Published var doubleTapWindow: Double { didSet { setDouble("DoubleTapWindow", doubleTapWindow) } }
+    @Published var tapMaximumDuration: Double { didSet { setDouble("TapMaximumDuration", tapMaximumDuration) } }
+    @Published var tapTravelTolerance: Double { didSet { setDouble("TapTravelTolerance", tapTravelTolerance) } }
+    @Published var rapidTapWindow: Double { didSet { setDouble("RapidTapWindow", rapidTapWindow) } }
+    @Published var rapidTapActivationCount: Int { didSet { setInt("RapidTapActivationCount", rapidTapActivationCount) } }
+    @Published var fireReleaseDelay: Double { didSet { setDouble("FireReleaseDelay", fireReleaseDelay) } }
+    @Published var automaticFireInterval: Double { didSet { setDouble("AutomaticFireInterval", automaticFireInterval) } }
+    @Published var dynamicCrosshairEnabled: Bool { didSet { setBool("DynamicCrosshairEnabled", dynamicCrosshairEnabled) } }
+    @Published var showCrosshairWhileHoldingSwipe: Bool {
         didSet { setBool("ShowCrosshairWhileHoldingSwipe", showCrosshairWhileHoldingSwipe) }
     }
-    var swipeCrosshairHideDelay: Double {
+    @Published var swipeCrosshairHideDelay: Double {
         didSet { setDouble("SwipeCrosshairHideDelay", swipeCrosshairHideDelay) }
     }
-    var triggerButtonWhenUnholdingSwipe: Int {
+    @Published var triggerButtonWhenUnholdingSwipe: Int {
         didSet { setInt("TriggerButtonWhenUnholdingSwipe", triggerButtonWhenUnholdingSwipe) }
     }
-    var dynamicCrosshairSize: Double { didSet { setDouble("DynamicCrosshairSize", dynamicCrosshairSize) } }
-    var dynamicCrosshairOpacity: Double {
+    @Published var dynamicCrosshairSize: Double { didSet { setDouble("DynamicCrosshairSize", dynamicCrosshairSize) } }
+    @Published var dynamicCrosshairOpacity: Double {
         didSet { setDouble("DynamicCrosshairOpacity", dynamicCrosshairOpacity) }
     }
-    var dynamicCrosshairType: DynamicCrosshairType {
+    @Published var dynamicCrosshairType: DynamicCrosshairType {
         didSet { setInt("DynamicCrosshairType", dynamicCrosshairType.rawValue) }
     }
-    var dynamicCrosshairAnimation: DynamicCrosshairAnimation {
+    @Published var dynamicCrosshairAnimation: DynamicCrosshairAnimation {
         didSet { setInt("DynamicCrosshairAnimation", dynamicCrosshairAnimation.rawValue) }
     }
-    var leftAimButton: VirtualPadActionButton { didSet { setInt("LeftAimButton", leftAimButton.rawValue) } }
-    var leftFireButton: VirtualPadActionButton { didSet { setInt("LeftFireButton", leftFireButton.rawValue) } }
-    var leftHoldFireButton: VirtualPadActionButton { didSet { setInt("LeftHoldFireButton", leftHoldFireButton.rawValue) } }
-    var rightAimButton: VirtualPadActionButton { didSet { setInt("AimButton", rightAimButton.rawValue) } }
-    var rightFireButton: VirtualPadActionButton { didSet { setInt("FireButton", rightFireButton.rawValue) } }
-    var rightHoldFireButton: VirtualPadActionButton { didSet { setInt("HoldFireButton", rightHoldFireButton.rawValue) } }
+    @Published var leftAimButton: VirtualPadActionButton { didSet { setInt("LeftAimButton", leftAimButton.rawValue) } }
+    @Published var leftFireButton: VirtualPadActionButton { didSet { setInt("LeftFireButton", leftFireButton.rawValue) } }
+    @Published var leftHoldFireButton: VirtualPadActionButton { didSet { setInt("LeftHoldFireButton", leftHoldFireButton.rawValue) } }
+    @Published var rightAimButton: VirtualPadActionButton { didSet { setInt("AimButton", rightAimButton.rawValue) } }
+    @Published var rightFireButton: VirtualPadActionButton { didSet { setInt("FireButton", rightFireButton.rawValue) } }
+    @Published var rightHoldFireButton: VirtualPadActionButton { didSet { setInt("HoldFireButton", rightHoldFireButton.rawValue) } }
 
     private init() {
         legacyThumbsticks = Self.bool("LegacyThumbsticks", default: true)

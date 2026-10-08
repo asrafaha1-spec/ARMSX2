@@ -47,8 +47,7 @@ struct EmulationOnlyPresentation: Equatable {
     static let minimal = EmulationOnlyPresentation()
 }
 
-@Observable
-final class AppState: @unchecked Sendable {
+final class AppState: ObservableObject, @unchecked Sendable {
     static let shared = AppState()
     static let systemChromeNeedsUpdateNotification = Notification.Name("ARMSX2iOSSystemChromeNeedsUpdate")
     static let releaseMenuBackgroundResourcesNotification = Notification.Name("ARMSX2iOSReleaseMenuBackgroundResources")
@@ -60,44 +59,44 @@ final class AppState: @unchecked Sendable {
         case playing
     }
 
-    var currentScreen: Screen = .menu
-    var selectedTab: Int = 0
-    var runningGameName: String? = nil
-    private(set) var vmShutdownPending = false
-    var bootDisclaimerMessage: String?
-    var bootDisclaimerTitle = "BIOS"
-    var pendingJITGameBoot: PendingJITGameBoot?
-    var pendingRestartGame: String?
-    var pendingLibraryExport: String?
-    private(set) var automaticGameStartupPending: Bool
-    @ObservationIgnored private var automaticGameStartupStarted = false
-    var gameplayLaunchTransition: GameplayLaunchTransition?
-    var gameplayLaunchControlsVisible = true
-    var gameplayLaunchBackgroundVisible = false
-    var externalDisplayConnected = false
+    @Published var currentScreen: Screen = .menu
+    @Published var selectedTab: Int = 0
+    @Published var runningGameName: String? = nil
+    @Published private(set) var vmShutdownPending = false
+    @Published var bootDisclaimerMessage: String?
+    @Published var bootDisclaimerTitle = "BIOS"
+    @Published var pendingJITGameBoot: PendingJITGameBoot?
+    @Published var pendingRestartGame: String?
+    @Published var pendingLibraryExport: String?
+    @Published private(set) var automaticGameStartupPending: Bool
+    private var automaticGameStartupStarted = false
+    @Published var gameplayLaunchTransition: GameplayLaunchTransition?
+    @Published var gameplayLaunchControlsVisible = true
+    @Published var gameplayLaunchBackgroundVisible = false
+    @Published var externalDisplayConnected = false
     /// Serial supplied by the library before the VM has published its CRC.
     /// This lets gameplay resolve a serial-scoped automatic pad assignment on
     /// its very first SwiftUI frame instead of briefly drawing Global Default.
-    private(set) var gameplayPadSerial: String?
+    @Published private(set) var gameplayPadSerial: String?
     /// Library-resolved identity available before the VM publishes its own
     /// settings identity. This prevents the first virtual-pad frame from
     /// falling back to the default layout.
-    private(set) var gameplayPadIdentity: PadLayoutGameIdentity?
+    @Published private(set) var gameplayPadIdentity: PadLayoutGameIdentity?
     /// Changes only when a new VM boot begins. The root gameplay overlay uses
     /// this identity to show startup guidance once per emulation session,
     /// rather than every time GameScreenView remounts after visiting the menu.
-    private(set) var emulationSessionID: UUID?
-    var isEmulationOnlyMode: Bool = false
-    var emulationOnlyPresentation = EmulationOnlyPresentation.minimal
-    private(set) var emulationOnlyStartupReady: Bool = false
-    var hideStatusBar: Bool = false {
+    @Published private(set) var emulationSessionID: UUID?
+    @Published var isEmulationOnlyMode: Bool = false
+    @Published var emulationOnlyPresentation = EmulationOnlyPresentation.minimal
+    @Published private(set) var emulationOnlyStartupReady: Bool = false
+    @Published var hideStatusBar: Bool = false {
         didSet {
             if systemChromeNotificationsEnabled, oldValue != hideStatusBar {
                 NotificationCenter.default.post(name: Self.systemChromeNeedsUpdateNotification, object: nil)
             }
         }
     }
-    var hideHomeIndicator: Bool = false {
+    @Published var hideHomeIndicator: Bool = false {
         didSet {
             if systemChromeNotificationsEnabled, oldValue != hideHomeIndicator {
                 NotificationCenter.default.post(name: Self.systemChromeNeedsUpdateNotification, object: nil)
@@ -105,13 +104,13 @@ final class AppState: @unchecked Sendable {
         }
     }
 
-    @ObservationIgnored private var systemChromeNotificationsEnabled = false
-    @ObservationIgnored private var pendingBootAction: (() -> Void)?
-    @ObservationIgnored private var leaveSave = 0
-    @ObservationIgnored private var shutdownObserver: NSObjectProtocol?
+    private var systemChromeNotificationsEnabled = false
+    private var pendingBootAction: (() -> Void)?
+    private var leaveSave = 0
+    private var shutdownObserver: NSObjectProtocol?
 
-    @ObservationIgnored private var autoBootObserver: NSObjectProtocol?
-    @ObservationIgnored private var emulationOnlyStartupReadyObserver: NSObjectProtocol?
+    private var autoBootObserver: NSObjectProtocol?
+    private var emulationOnlyStartupReadyObserver: NSObjectProtocol?
 
     private init() {
         // Read only persisted boot policy here, never SettingsStore.shared:

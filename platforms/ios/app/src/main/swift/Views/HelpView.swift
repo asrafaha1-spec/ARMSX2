@@ -100,7 +100,7 @@ private let helpData: [HelpSection] = [
 ]
 
 struct HelpView: View {
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
     @State private var copyStatusMessage: String?
     @State private var expandedItemIDs: Set<UUID> = []
 #if targetEnvironment(macCatalyst)

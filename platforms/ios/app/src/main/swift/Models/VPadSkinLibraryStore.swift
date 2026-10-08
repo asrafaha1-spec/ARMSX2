@@ -125,18 +125,17 @@ enum VPadSkinLibraryStoreError: LocalizedError {
     }
 }
 
-@Observable
-final class VPadSkinLibraryStore: @unchecked Sendable {
+final class VPadSkinLibraryStore: ObservableObject, @unchecked Sendable {
     static let shared = VPadSkinLibraryStore()
     static let schemaVersion = 1
 
     private let libraryURL: URL
     private let assetsRootURL: URL
     private let legacyCustomSkinURL: URL?
-    private(set) var importedDescriptors: [VPadSkinDescriptor] = []
-    private var didMigrateLegacyCustomSkin = false
+    @Published private(set) var importedDescriptors: [VPadSkinDescriptor] = []
+    @Published private var didMigrateLegacyCustomSkin = false
 
-    var selectedSkinID: String {
+    @Published var selectedSkinID: String {
         didSet {
             if selectedSkinID != oldValue {
                 persist()

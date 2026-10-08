@@ -385,6 +385,7 @@ enum DynamicBackgroundGeometry {
 // MARK: - DynamicParticleOverlay
 
 struct DynamicParticleOverlay: View {
+    @ObservedObject private var observedARMSX2LogoStore = ARMSX2LogoStore.shared
   let theme: DynamicBackgroundTheme
   @Environment(\.menuBackgroundSessionStart) private var menuBackgroundSessionStart
   @Environment(\.uiFrameRateConfiguration) private var frameRates
@@ -484,7 +485,7 @@ struct DynamicParticleOverlay: View {
 
   /// A single, inexpensive DVD-style logo which reflects at each screen edge.
   private struct ARMSX2BouncingLogoParticleView: View {
-    @State private var logoStore = ARMSX2LogoStore.shared
+    @ObservedObject private var logoStore = ARMSX2LogoStore.shared
     @Environment(\.uiFrameRateConfiguration) private var frameRates
     let settings: DynamicParticleSettings
     let theme: DynamicBackgroundTheme

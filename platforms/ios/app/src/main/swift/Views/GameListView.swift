@@ -5,7 +5,6 @@ import SwiftUI
 import PhotosUI
 import UniformTypeIdentifiers
 import UIKit
-import Observation
 
 /// Region-string to flag emoji mapping, shared by library cards and the game
 /// info detail view. Returns an empty string for unknown regions so callers can
@@ -1086,9 +1085,8 @@ enum GameLibraryRuntimeResources {
 }
 
 @MainActor
-@Observable
-private final class GameLibraryControllerCardFocusState {
-    var isFocused: Bool
+private final class GameLibraryControllerCardFocusState: ObservableObject {
+    @Published var isFocused: Bool
 
     init(isFocused: Bool) {
         self.isFocused = isFocused
@@ -1121,15 +1119,14 @@ private enum GameLibraryNowRunningControllerAction: Int, CaseIterable {
 }
 
 @MainActor
-@Observable
-private final class GameLibraryNowRunningControllerFocusState {
-    var selectedAction: GameLibraryNowRunningControllerAction?
+private final class GameLibraryNowRunningControllerFocusState: ObservableObject {
+    @Published var selectedAction: GameLibraryNowRunningControllerAction?
 }
 
 private struct GameLibraryNowRunningControllerFocusModifier: ViewModifier {
-    let state: GameLibraryNowRunningControllerFocusState
+    @ObservedObject var state: GameLibraryNowRunningControllerFocusState
     let action: GameLibraryNowRunningControllerAction
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     let menuTabIsActive: Bool
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -1184,18 +1181,17 @@ private struct GameLibraryNowRunningControllerFocusModifier: ViewModifier {
 }
 
 @MainActor
-@Observable
-private final class GameLibraryControllerFocusState {
-    @ObservationIgnored private var storedSelectedGameID: String?
-    @ObservationIgnored private var storedIsActive = false
-    @ObservationIgnored private var isLibraryZone = true
-    @ObservationIgnored private var isLibraryVisible = true
-    @ObservationIgnored private var cardStates: [String: GameLibraryControllerCardFocusState] = [:]
-    @ObservationIgnored private var gameIndexByID: [String: Int] = [:]
-    @ObservationIgnored private var scrollSequence: UInt64 = 0
-    @ObservationIgnored private var suppressNextSelectionScroll = false
+private final class GameLibraryControllerFocusState: ObservableObject {
+    private var storedSelectedGameID: String?
+    private var storedIsActive = false
+    private var isLibraryZone = true
+    private var isLibraryVisible = true
+    private var cardStates: [String: GameLibraryControllerCardFocusState] = [:]
+    private var gameIndexByID: [String: Int] = [:]
+    private var scrollSequence: UInt64 = 0
+    private var suppressNextSelectionScroll = false
 
-    var selectionScrollRequest: GameLibrarySelectionScrollRequest?
+    @Published var selectionScrollRequest: GameLibrarySelectionScrollRequest?
 
     var selectedGameID: String? {
         get { storedSelectedGameID }
@@ -1305,8 +1301,8 @@ private final class GameLibraryControllerFocusState {
 }
 
 private struct GameLibraryControllerCommandListener: View {
-    let controllerInput: MenuControllerInputRouter?
-    let focusState: GameLibraryControllerFocusState
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
+    @ObservedObject var focusState: GameLibraryControllerFocusState
     let libraryVisible: Bool
     let onCommand: (MenuControllerInputEvent) -> Void
     let onLibraryEntry: (Bool) -> Void
@@ -1319,36 +1315,36 @@ private struct GameLibraryControllerCommandListener: View {
             .frame(width: 0, height: 0)
             .allowsHitTesting(false)
             .accessibilityHidden(true)
-            .onChange(of: controllerInput?.latestEvent) { _, event in
+            .compatOnChange(of: controllerInput?.latestEvent) { _, event in
                 guard let event else { return }
                 onCommand(event)
             }
-            .onChange(of: controllerInput?.latestLibraryEntryRequest) { _, request in
+            .compatOnChange(of: controllerInput?.latestLibraryEntryRequest) { _, request in
                 guard let request else { return }
                 onLibraryEntry(request.preferLast)
             }
-            .onChange(of: controllerInput?.focusReleaseSequence) { _, _ in
+            .compatOnChange(of: controllerInput?.focusReleaseSequence) { _, _ in
                 onFocusRelease()
             }
-            .onChange(
+            .compatOnChange(
                 of: controllerInput?.rightStickScrollEndSequence
             ) { _, _ in
                 onRightStickScrollEnded()
             }
-            .onChange(
+            .compatOnChange(
                 of: controllerInput?.isControllerNavigationEnabled
             ) { _, enabled in
                 if enabled == false { onFocusRelease() }
                 onInputAvailabilityChanged()
             }
-            .onChange(of: controllerInput?.navigationZone, initial: true) { _, zone in
+            .compatOnChange(of: controllerInput?.navigationZone, initial: true) { _, zone in
                 focusState.setLibraryZoneActive(zone == .library)
                 onInputAvailabilityChanged()
             }
-            .onChange(of: controllerInput?.isNavigationCaptured, initial: true) { _, _ in
+            .compatOnChange(of: controllerInput?.isNavigationCaptured, initial: true) { _, _ in
                 onInputAvailabilityChanged()
             }
-            .onChange(of: libraryVisible, initial: true) { _, visible in
+            .compatOnChange(of: libraryVisible, initial: true) { _, visible in
                 focusState.setLibraryVisible(visible)
                 onInputAvailabilityChanged()
             }
@@ -1356,14 +1352,13 @@ private struct GameLibraryControllerCommandListener: View {
 }
 
 @MainActor
-@Observable
-private final class GameLibraryControllerScrollAvailability {
-    var isEnabled = false
+private final class GameLibraryControllerScrollAvailability: ObservableObject {
+    @Published var isEnabled = false
 }
 
 private struct GameLibraryControllerRightStickTarget: View {
-    let controllerInput: MenuControllerInputRouter?
-    let availability: GameLibraryControllerScrollAvailability
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
+    @ObservedObject var availability: GameLibraryControllerScrollAvailability
     let axes: MenuControllerScrollAxes
     var priority = 10
     var pointsPerSecond: CGFloat = 760
@@ -1382,10 +1377,9 @@ private struct GameLibraryControllerRightStickTarget: View {
 }
 
 @MainActor
-@Observable
-private final class GameLibraryScrollRestoreState {
-    var topRequestSequence: UInt64 = 0
-    @ObservationIgnored private var consumedTopRequestSequence: UInt64 = 0
+private final class GameLibraryScrollRestoreState: ObservableObject {
+    @Published var topRequestSequence: UInt64 = 0
+    private var consumedTopRequestSequence: UInt64 = 0
 
     func requestTopRestore() {
         topRequestSequence &+= 1
@@ -1848,7 +1842,7 @@ private final class GameLibraryCoverFlowPreheater {
 }
 
 private struct GameLibraryControllerFocusScope<Content: View>: View {
-    let focusState: GameLibraryControllerFocusState
+    @ObservedObject var focusState: GameLibraryControllerFocusState
     let gameID: String
     let isEnabled: Bool
     let content: (Bool) -> Content
@@ -1865,7 +1859,7 @@ private struct GameLibraryControllerFocusScope<Content: View>: View {
 /// Register one reusable launch/context-menu geometry view here instead of one
 /// GeometryReader plus UIViewRepresentable on every materialized card.
 private struct GameLibraryControllerCoverFlowLaunchAnchor: View {
-    let focusState: GameLibraryControllerFocusState
+    @ObservedObject var focusState: GameLibraryControllerFocusState
     let registry: GameplayLaunchCardRegistry
     let width: CGFloat
     let height: CGFloat
@@ -1888,10 +1882,10 @@ private struct GameLibraryControllerCoverFlowLaunchAnchor: View {
 private struct GameLibraryScrollObserver: View {
     static let topAnchor = "game-library-top"
 
-    let focusState: GameLibraryControllerFocusState
+    @ObservedObject var focusState: GameLibraryControllerFocusState
     let proxy: ScrollViewProxy
     let favoriteScrollRequest: GameLibraryFavoriteScrollRequest?
-    let restoreState: GameLibraryScrollRestoreState
+    @ObservedObject var restoreState: GameLibraryScrollRestoreState
     let topAlignment: UnitPoint
     var usesCompactControllerAnimation = false
     var focusScrollCoordinator: GameLibraryFocusScrollCoordinator? = nil
@@ -1904,7 +1898,7 @@ private struct GameLibraryScrollObserver: View {
             .frame(width: 0, height: 0)
             .allowsHitTesting(false)
             .accessibilityHidden(true)
-            .onChange(
+            .compatOnChange(
                 of: restoreState.topRequestSequence,
                 initial: true
             ) { _, sequence in
@@ -1918,7 +1912,7 @@ private struct GameLibraryScrollObserver: View {
                     }
                 }
             }
-            .onChange(
+            .compatOnChange(
                 of: focusState.selectionScrollRequest,
                 initial: true
             ) { _, request in
@@ -1971,7 +1965,7 @@ private struct GameLibraryScrollObserver: View {
                     }
                 }
             }
-            .onChange(of: favoriteScrollRequest) { _, request in
+            .compatOnChange(of: favoriteScrollRequest) { _, request in
                 guard let request else { return }
                 DispatchQueue.main.async {
                     // Resolve the destination after the favorite-first sort
@@ -2092,9 +2086,8 @@ private enum GameLibraryControllerToolbarAction: Int, CaseIterable {
 }
 
 @MainActor
-@Observable
-private final class GameLibraryControllerToolbarFocusState {
-    var selectedAction: GameLibraryControllerToolbarAction = .importGames
+private final class GameLibraryControllerToolbarFocusState: ObservableObject {
+    @Published var selectedAction: GameLibraryControllerToolbarAction = .importGames
 }
 
 private enum GameLibraryControllerAlertKind: String, Equatable {
@@ -2155,15 +2148,14 @@ private struct DeferredControllerContextMenuSelection {
 }
 
 @MainActor
-@Observable
-private final class GameLibraryControllerContextMenuState {
-    var gameID: String?
-    var section: GameLibraryControllerMenuSection = .root
-    var selectedAction: GameLibraryControllerMenuAction?
+private final class GameLibraryControllerContextMenuState: ObservableObject {
+    @Published var gameID: String?
+    @Published var section: GameLibraryControllerMenuSection = .root
+    @Published var selectedAction: GameLibraryControllerMenuAction?
 }
 
 private struct GameLibraryControllerContextMenuPresenter<Content: View>: View {
-    let state: GameLibraryControllerContextMenuState
+    @ObservedObject var state: GameLibraryControllerContextMenuState
     let content: (
         _ gameID: String,
         _ section: GameLibraryControllerMenuSection,
@@ -2191,9 +2183,9 @@ private struct GameLibraryControllerContextMenuPresenter<Content: View>: View {
 }
 
 private struct ControllerToolbarFocusModifier: ViewModifier {
-    let focusState: GameLibraryControllerToolbarFocusState
+    @ObservedObject var focusState: GameLibraryControllerToolbarFocusState
     let action: GameLibraryControllerToolbarAction
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     let menuTabIsActive: Bool
     /// A panel or menu opened from the toolbar draws its own focus.
     let isCovered: Bool
@@ -2230,9 +2222,13 @@ private struct GameLibraryListTopEdgeEffectModifier: ViewModifier {
 }
 
 struct GameListView: View {
+    @ObservedObject private var observedGameCoverThemePreviewStore = GameCoverThemePreviewStore.shared
+    @ObservedObject private var observedMenuAudioPackManager = MenuAudioPackManager.shared
+    @ObservedObject private var observedPadLayoutPresetStore = PadLayoutPresetStore.shared
+    @ObservedObject private var observedVPadSkinLibraryStore = VPadSkinLibraryStore.shared
     let embeddedInMenuNavigation: Bool
     let ownsEmbeddedMenuToolbar: Bool
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     let onRenamePresentationChanged: (Bool) -> Void
 
     init(
@@ -2248,12 +2244,12 @@ struct GameListView: View {
     }
 
     @State private var games: [ISOEntry] = []
-    @State private var appState = AppState.shared
-	@State private var settings = SettingsStore.shared
-	@State private var logoStore = ARMSX2LogoStore.shared
-	@State private var fileImporter = FileImportHandler.shared
-	@State private var coverStore = CoverStore.shared
-	@State private var externalLibrary = ExternalGameLibrary.shared
+    @ObservedObject private var appState = AppState.shared
+	@ObservedObject private var settings = SettingsStore.shared
+	@ObservedObject private var logoStore = ARMSX2LogoStore.shared
+	@ObservedObject private var fileImporter = FileImportHandler.shared
+	@ObservedObject private var coverStore = CoverStore.shared
+	@ObservedObject private var externalLibrary = ExternalGameLibrary.shared
 	@State private var externalCoverAutoDownloadAttemptedIDs = Set<String>()
 	@State private var coverWorkTask: Task<Void, Never>?
 	@State private var showGameImporter = false
@@ -2317,7 +2313,7 @@ struct GameListView: View {
     @State private var nowRunningCardScale = 1.0
     @State private var nowRunningStatusOpacity = 1.0
     @State private var gameLibraryActivity = GameLibraryActivityState()
-    @State private var controllerFocusState = GameLibraryControllerFocusState()
+    @StateObject private var controllerFocusState = GameLibraryControllerFocusState()
     @State private var controllerScrollAvailability =
         GameLibraryControllerScrollAvailability()
     @State private var libraryScrollRestoreState =
@@ -2335,7 +2331,7 @@ struct GameListView: View {
         GameLibraryControllerContextMenuState()
     @State private var deferredControllerContextMenuSelection:
         DeferredControllerContextMenuSelection?
-    @State private var controllerToolbarFocusState = GameLibraryControllerToolbarFocusState()
+    @StateObject private var controllerToolbarFocusState = GameLibraryControllerToolbarFocusState()
     @State private var controllerNowRunningFocusState =
         GameLibraryNowRunningControllerFocusState()
     @State private var controllerAlertSelectedIndex = 0
@@ -3112,7 +3108,7 @@ struct GameListView: View {
                                 scheduleLandscapeControllerAutofocus()
                             }
                         }
-                        .onChange(of: geo.size) { previousSize, size in
+                        .compatOnChange(of: geo.size) { previousSize, size in
                             let enteredLandscape = size.width > size.height
                                 && previousSize.width <= previousSize.height
                             libraryContainerSize = size
@@ -3550,7 +3546,7 @@ struct GameListView: View {
                 selection: $selectedCoverPhotoItem,
                 matching: .images
             )
-            .onChange(of: selectedCoverPhotoItem) { _, photoItem in
+            .compatOnChange(of: selectedCoverPhotoItem) { _, photoItem in
                 guard let photoItem, let gameName = pendingCoverPhotoGameName else { return }
                 selectedCoverPhotoItem = nil
                 pendingCoverPhotoGameName = nil
@@ -3860,10 +3856,10 @@ struct GameListView: View {
             }
         let libraryObservers = presentation
         .onAppear(perform: handleLibraryAppear)
-        .onChange(of: renameTarget != nil, initial: true) { _, isPresented in
+        .compatOnChange(of: renameTarget != nil, initial: true) { _, isPresented in
             onRenamePresentationChanged(isPresented)
         }
-        .onChange(of: controllerInput?.navigationZone) { _, zone in
+        .compatOnChange(of: controllerInput?.navigationZone) { _, zone in
             if zone == .topToolbar {
                 rememberControllerToolbarFocus()
             }
@@ -3871,7 +3867,7 @@ struct GameListView: View {
                 for: zone == .library ? controllerSelectedGameID : nil
             )
         }
-        .onChange(of: controllerContextMenuState.gameID) { _, gameID in
+        .compatOnChange(of: controllerContextMenuState.gameID) { _, gameID in
             if let gameID {
                 updateGameCoverThemePreview(
                     for: gameID,
@@ -3882,7 +3878,7 @@ struct GameListView: View {
                 updateGameCoverThemePreview(for: controllerSelectedGameID)
             }
         }
-        .onChange(of: controllerToolbarFocusState.selectedAction) { _, _ in
+        .compatOnChange(of: controllerToolbarFocusState.selectedAction) { _, _ in
             if controllerInput?.navigationZone == .topToolbar {
                 rememberControllerToolbarFocus()
             }
@@ -3901,7 +3897,7 @@ struct GameListView: View {
         )
 
         return libraryObservers
-        .onChange(of: games) { _, updatedGames in
+        .compatOnChange(of: games) { _, updatedGames in
             controllerFocusState.updateGameIDs(updatedGames.map(\.id))
             updateGameCoverThemePreview(for: controllerSelectedGameID)
             if let controllerSelectedGameID,
@@ -3924,7 +3920,7 @@ struct GameListView: View {
                 scheduleLandscapeControllerAutofocus()
             }
         }
-        .onChange(of: displayedRunningGameName) { _, runningGame in
+        .compatOnChange(of: displayedRunningGameName) { _, runningGame in
             if runningGame == nil {
                 runningGameControllerFocusPending = false
                 controllerNowRunningFocusState.selectedAction = nil
@@ -3933,7 +3929,7 @@ struct GameListView: View {
                 _ = focusRunningControllerGameIfAvailable()
             }
         }
-        .onChange(of: controllerInput?.hasConnectedController) { _, connected in
+        .compatOnChange(of: controllerInput?.hasConnectedController) { _, connected in
             if connected == true {
                 if appState.runningGameName != nil {
                     runningGameControllerFocusPending = true
@@ -3949,7 +3945,7 @@ struct GameListView: View {
                 focusScrollCoordinator.cancel()
             }
         }
-        .onChange(of: menuTabIsActive) { _, active in
+        .compatOnChange(of: menuTabIsActive) { _, active in
             updateGameCoverThemePreview(
                 for: active ? controllerSelectedGameID : nil
             )
@@ -3961,7 +3957,7 @@ struct GameListView: View {
                 scheduleLandscapeControllerAutofocus()
             }
         }
-        .onChange(of: manuallyCapturedControllerPresentationActive) { _, active in
+        .compatOnChange(of: manuallyCapturedControllerPresentationActive) { _, active in
             let shouldCapture = active
                 || controllerContextMenuState.gameID != nil
             controllerInput?.setNavigationCaptured(
@@ -3974,7 +3970,7 @@ struct GameListView: View {
                 scheduleLandscapeControllerAutofocus()
             }
         }
-        .onChange(of: controllerNavigationPresentationActive) { _, active in
+        .compatOnChange(of: controllerNavigationPresentationActive) { _, active in
             guard active else { return }
             // Modal destinations own the foreground. Stop speculative cover
             // decoding and any in-flight centering work until the library is
@@ -3983,7 +3979,7 @@ struct GameListView: View {
             focusScrollCoordinator.stopAnimation()
             gameLibraryActivity.isScrolling = false
         }
-        .onChange(of: activeControllerAlertKind) { previous, kind in
+        .compatOnChange(of: activeControllerAlertKind) { previous, kind in
             controllerAlertSelectedIndex = 0
             guard let kind, kind != previous else { return }
             MenuAudioPackManager.shared.playEvent(.uiToast)
@@ -9412,7 +9408,7 @@ private struct LibraryPerGameSettingsOverlay: View {
     let game: ISOEntry
     let preloadedSettings: [String: Any]?
     let initiallySelectsShaders: Bool
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     let onDone: () -> Void
 
     var body: some View {
@@ -9533,7 +9529,7 @@ private struct GameLibraryViewOptionsValues {
 }
 
 private struct GameLibraryViewOptionsPanel: View {
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     let orientationTitle: String
     @Binding var cardScale: Double
     @Binding var cardWidthScale: Double
@@ -9569,7 +9565,7 @@ private struct GameLibraryViewOptionsPanel: View {
     let onApply: () -> Void
 
     @Environment(\.uiAccentColour) private var accentColour
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
     @State private var previewEndTask: Task<Void, Never>?
     @State private var showsResetConfirmation = false
     @State private var resetFeedbackVisible = false
@@ -10145,7 +10141,7 @@ private struct ExperimentalLibrarySliderRow: View {
 
 private struct GameInfoPanel: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
 
     let game: ISOEntry
 
@@ -10229,7 +10225,7 @@ private struct GameInfoPanel: View {
 
 private struct DiscLinkPicker: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
 
     let discs: [ISOEntry]
     let onSelect: (ISOEntry?) -> Void

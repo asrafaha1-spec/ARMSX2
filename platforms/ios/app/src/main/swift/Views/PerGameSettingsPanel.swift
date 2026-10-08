@@ -34,13 +34,14 @@ struct PerGameLivePreviewStatus: Equatable {
     let countsDown: Bool
 }
 struct PerGameSettingsPanel: View {
+    @ObservedObject private var observedMenuAudioPackManager = MenuAudioPackManager.shared
     @Environment(\.dismiss) private var dismiss
     @Environment(\.uiAccentColour) private var accentColour
     @Environment(\.uiContextMenuColour) private var panelTextColour
     @Environment(\.uiContextMenuSecondaryColour) private var panelSecondaryTextColour
-    @State private var settings = SettingsStore.shared
-    @State private var layoutPresets = PadLayoutPresetStore.shared
-    @State private var skinLibrary = VPadSkinLibraryStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var layoutPresets = PadLayoutPresetStore.shared
+    @ObservedObject private var skinLibrary = VPadSkinLibraryStore.shared
     @State private var textureControllerTargets: [String] = []
 
     private enum PerGameSettingsCategory: String, CaseIterable, Identifiable, Hashable {
@@ -200,7 +201,7 @@ struct PerGameSettingsPanel: View {
     }
 
     let game: ISOEntry
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     let onDone: (() -> Void)?
     let savesToRunningGame: Bool
     private let initiallySelectsShaders: Bool
@@ -719,7 +720,7 @@ struct PerGameSettingsPanel: View {
             // Recreate probes and the navigation scope atomically at rotation
             // so Cross can never activate a retained control from the old tree.
             .id(layout)
-            .onChange(of: layout) { _, _ in
+            .compatOnChange(of: layout) { _, _ in
                 selectedControllerDetail = nil
             }
             .controllerAccessibilityTargetOrder(
@@ -818,19 +819,19 @@ struct PerGameSettingsPanel: View {
         }
         .allowsHitTesting(!livePreviewSessionIsFinishing)
         .tint(accentColour)
-        .onChange(of: hasPendingChanges) { _, pending in
+        .compatOnChange(of: hasPendingChanges) { _, pending in
             if pending {
                 saveFeedbackVisible = false
             }
         }
-        .onChange(of: activeControllerAlertKind) { previous, kind in
+        .compatOnChange(of: activeControllerAlertKind) { previous, kind in
             guard let kind, kind != previous else { return }
             MenuAudioPackManager.shared.playEvent(.uiToast)
         }
         .onAppear {
             beginLivePreviewSessionIfNeeded()
         }
-        .onChange(of: perGameLivePreviewFingerprint()) { _, fingerprint in
+        .compatOnChange(of: perGameLivePreviewFingerprint()) { _, fingerprint in
             if suppressNextLivePreviewChange {
                 suppressNextLivePreviewChange = false
                 lastPreviewedFingerprint = fingerprint
@@ -838,14 +839,14 @@ struct PerGameSettingsPanel: View {
             }
             scheduleLivePreview(for: fingerprint)
         }
-        .onChange(of: livePreviewDismissRequest) { _, _ in
+        .compatOnChange(of: livePreviewDismissRequest) { _, _ in
             guard livePreviewPresentation.hidesSettingsUI else { return }
             // The presentation owner captured this button before it could
             // reach the hidden editor. Cancelling joins any in-flight native
             // apply, restores the temporal state, and remounts the panel.
             livePreviewTask?.cancel()
         }
-        .onChange(of: settings.temporalSaveStateToLivePreviewChanges) {
+        .compatOnChange(of: settings.temporalSaveStateToLivePreviewChanges) {
             _, enabled in
             if enabled {
                 if livePreviewToken == nil {

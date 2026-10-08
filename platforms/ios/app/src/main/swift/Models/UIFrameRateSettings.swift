@@ -1,7 +1,6 @@
 // UIFrameRateSettings.swift — user-selectable UI and effect frame pacing
 // SPDX-License-Identifier: GPL-3.0+
 
-import Observation
 import QuartzCore
 import SwiftUI
 import UIKit
@@ -205,8 +204,7 @@ struct UIFrameRateConfiguration: Equatable, Sendable {
 }
 
 @MainActor
-@Observable
-final class UIFrameRateSettings {
+final class UIFrameRateSettings: ObservableObject {
     static let shared = UIFrameRateSettings()
 
     static let displayRefreshRateRange: ClosedRange<Double> = 30...120
@@ -216,7 +214,7 @@ final class UIFrameRateSettings {
     static let dynamicParticleAmountRange: ClosedRange<Double> = 0.25...1.0
     static let dynamicFaceButtonAmountRange: ClosedRange<Double> = 0.25...2.0
 
-    var displayRefreshRateFramesPerSecond: Double {
+    @Published var displayRefreshRateFramesPerSecond: Double {
         didSet {
             persist(
                 displayRefreshRateFramesPerSecond,
@@ -225,25 +223,25 @@ final class UIFrameRateSettings {
             )
         }
     }
-    var touchNavigationFramesPerSecond: Double {
+    @Published var touchNavigationFramesPerSecond: Double {
         didSet { persist(touchNavigationFramesPerSecond, key: Keys.touchNavigation, range: Self.navigationRange) }
     }
-    var controllerNavigationFramesPerSecond: Double {
+    @Published var controllerNavigationFramesPerSecond: Double {
         didSet { persist(controllerNavigationFramesPerSecond, key: Keys.controllerNavigation, range: Self.navigationRange) }
     }
-    var controllerEffectsFramesPerSecond: Double {
+    @Published var controllerEffectsFramesPerSecond: Double {
         didSet { persist(controllerEffectsFramesPerSecond, key: Keys.controllerEffects, range: Self.effectRange) }
     }
-    var dynamicBackgroundFramesPerSecond: Double {
+    @Published var dynamicBackgroundFramesPerSecond: Double {
         didSet { persist(dynamicBackgroundFramesPerSecond, key: Keys.dynamicBackground, range: Self.dynamicRange) }
     }
-    var dynamicParticleFramesPerSecond: Double {
+    @Published var dynamicParticleFramesPerSecond: Double {
         didSet { persist(dynamicParticleFramesPerSecond, key: Keys.dynamicParticles, range: Self.effectRange) }
     }
-    var dynamicFaceButtonFramesPerSecond: Double {
+    @Published var dynamicFaceButtonFramesPerSecond: Double {
         didSet { persist(dynamicFaceButtonFramesPerSecond, key: Keys.dynamicFaceButtons, range: Self.effectRange) }
     }
-    var dynamicWallpaperResolution: DynamicWallpaperResolution {
+    @Published var dynamicWallpaperResolution: DynamicWallpaperResolution {
         didSet {
             UserDefaults.standard.set(
                 dynamicWallpaperResolution.rawValue,
@@ -251,7 +249,7 @@ final class UIFrameRateSettings {
             )
         }
     }
-    var dynamicParticleAmount: Double {
+    @Published var dynamicParticleAmount: Double {
         didSet {
             persist(
                 dynamicParticleAmount,
@@ -260,7 +258,7 @@ final class UIFrameRateSettings {
             )
         }
     }
-    var dynamicFaceButtonResolution: DynamicWallpaperResolution {
+    @Published var dynamicFaceButtonResolution: DynamicWallpaperResolution {
         didSet {
             UserDefaults.standard.set(
                 dynamicFaceButtonResolution.rawValue,
@@ -268,7 +266,7 @@ final class UIFrameRateSettings {
             )
         }
     }
-    var dynamicFaceButtonAmount: Double {
+    @Published var dynamicFaceButtonAmount: Double {
         didSet {
             persist(
                 dynamicFaceButtonAmount,
@@ -277,7 +275,7 @@ final class UIFrameRateSettings {
             )
         }
     }
-    var usesOriginalFullQualityLiveWallpapers: Bool {
+    @Published var usesOriginalFullQualityLiveWallpapers: Bool {
         didSet {
             UserDefaults.standard.set(
                 usesOriginalFullQualityLiveWallpapers,
@@ -285,7 +283,7 @@ final class UIFrameRateSettings {
             )
         }
     }
-    var usesLightweightQualityOnHotTemperature: Bool {
+    @Published var usesLightweightQualityOnHotTemperature: Bool {
         didSet {
             UserDefaults.standard.set(
                 usesLightweightQualityOnHotTemperature,
@@ -296,15 +294,15 @@ final class UIFrameRateSettings {
     /// Presentation-only quality suppression used by dense foreground editors.
     /// This deliberately is not persisted and never rewrites the user's full-
     /// quality preference.
-    private(set) var lightweightLiveWallpaperOverrideCount = 0
-    var asksBeforeControllerNavigation: Bool {
+    @Published private(set) var lightweightLiveWallpaperOverrideCount = 0
+    @Published var asksBeforeControllerNavigation: Bool {
         didSet { UserDefaults.standard.set(asksBeforeControllerNavigation, forKey: Keys.askController) }
     }
-    var asksBeforeTouchNavigation: Bool {
+    @Published var asksBeforeTouchNavigation: Bool {
         didSet { UserDefaults.standard.set(asksBeforeTouchNavigation, forKey: Keys.askTouch) }
     }
     // Off by default: a pad set down on a table pressed the triggers and switched themes.
-    var changesThemeWithTriggers: Bool {
+    @Published var changesThemeWithTriggers: Bool {
         didSet { UserDefaults.standard.set(changesThemeWithTriggers, forKey: Keys.themeTriggers) }
     }
 

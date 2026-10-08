@@ -6,7 +6,7 @@ import UniformTypeIdentifiers
 import UIKit
 
 struct MemoryCardSettingsView: View {
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
     @State private var availableCards: [String] = []
     @State private var slot1Card = ""
     @State private var slot2Card = ""
@@ -43,7 +43,7 @@ struct MemoryCardSettingsView: View {
                     selection: $slot1Card,
                     options: cardPickerOptions
                 )
-                .onChange(of: slot1Card) { _, newValue in
+                .compatOnChange(of: slot1Card) { _, newValue in
                     ARMSX2Bridge.setMemoryCard(name: newValue, forSlot: 1, enabled: !newValue.isEmpty)
                 }
 
@@ -58,7 +58,7 @@ struct MemoryCardSettingsView: View {
                     selection: $slot2Card,
                     options: cardPickerOptions
                 )
-                .onChange(of: slot2Card) { _, newValue in
+                .compatOnChange(of: slot2Card) { _, newValue in
                     ARMSX2Bridge.setMemoryCard(name: newValue, forSlot: 2, enabled: !newValue.isEmpty)
                 }
 

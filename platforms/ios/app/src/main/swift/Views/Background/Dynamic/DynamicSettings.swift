@@ -660,6 +660,7 @@ struct BackgroundControlSection<Content: View>: View {
 /// The title stays raw here. Two switches downstream match on the English string to find a reset
 /// value and a section icon, and NumberRow localises late enough not to break them.
 struct DynamicSettingsValueSlider: View {
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
   let title: String
   @Binding var value: Double
   let range: ClosedRange<Double>
@@ -791,7 +792,7 @@ struct DynamicBackgroundSettingsControls: View {
   var body: some View {
     settingsContent
       .onAppear(perform: expandCurrentBackgroundSettings)
-      .onChange(of: dynamicBackground) { _, _ in
+      .compatOnChange(of: dynamicBackground) { _, _ in
         expandCurrentBackgroundSettings()
       }
   }
@@ -1032,7 +1033,7 @@ struct DynamicParticleSettingsControls: View {
   let dynamicBackground: DynamicBackgroundStyle
   let resetAllSettingsAndPalettes: () -> Void
 
-  @State private var logoStore = ARMSX2LogoStore.shared
+  @ObservedObject private var logoStore = ARMSX2LogoStore.shared
 
   @AppStorage("ARMSX2iOSDynamicAddParticlesExpanded")
   private var showsAddParticlesSettings = true
@@ -1052,7 +1053,7 @@ struct DynamicParticleSettingsControls: View {
         showsBackgroundSettings = true
         migrateLegacyLogoStyleIfNeeded()
       }
-      .onChange(of: dynamicBackground) { _, _ in
+      .compatOnChange(of: dynamicBackground) { _, _ in
         showsBackgroundSettings = true
       }
   }

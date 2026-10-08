@@ -143,7 +143,7 @@ struct OrbitKeysKeyboardView: View {
     .preferredColorScheme(.dark)
     .tint(accentColour)
     .onAppear(perform: openKeyboard)
-    .onChange(of: model.isKeyboardVisible, handleVisibilityChange)
+    .compatOnChange(of: model.isKeyboardVisible, handleVisibilityChange)
     .onDisappear(perform: releaseResources)
     .accessibilityElement(children: .contain)
     .accessibilityLabel(title)

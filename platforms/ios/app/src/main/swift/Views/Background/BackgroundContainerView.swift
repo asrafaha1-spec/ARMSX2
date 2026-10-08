@@ -6,8 +6,8 @@ import AVKit
 import ImageIO
 
 struct BackgroundContainerView: View {
-    @State private var settings = SettingsStore.shared
-    @State private var gameCoverThemePreview = GameCoverThemePreviewStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var gameCoverThemePreview = GameCoverThemePreviewStore.shared
     let size: CGSize
     var isPresentationActive = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion

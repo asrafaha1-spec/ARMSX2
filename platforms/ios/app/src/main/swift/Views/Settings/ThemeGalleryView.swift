@@ -13,10 +13,10 @@ struct ThemeGalleryView: View {
         var id: String { rawValue }
     }
 
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     @Environment(\.dismiss) private var dismiss
-    @State private var settings = SettingsStore.shared
-    @State private var gallery = ThemeGalleryStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var gallery = ThemeGalleryStore.shared
     @State private var page: Page = .themes
     @State private var preferences = SettingsStore.shared.dynamicAppearancePreferences
     @State private var paletteTarget: ThemePaletteTarget = .shared
@@ -107,12 +107,12 @@ struct ThemeGalleryView: View {
             customPreviewSnapshot = gallery.customDraft
             preferences = settings.dynamicAppearancePreferences
         }
-        .onChange(of: page) { _, page in
+        .compatOnChange(of: page) { _, page in
             endPreview()
             if page == .shared { paletteTarget = .shared }
             if page == .ribbons { paletteTarget = .ribbons }
         }
-        .onChange(of: preferences) { _, updated in
+        .compatOnChange(of: preferences) { _, updated in
             // A preset synchronizes the binding too; only a user edit differs.
             guard updated != settings.dynamicAppearancePreferences else { return }
             rememberUndo()
@@ -120,7 +120,7 @@ struct ThemeGalleryView: View {
             settings.dynamicAppearancePreferences = updated
             preview(page.rawValue)
         }
-        .onChange(of: livePreview) { _, enabled in
+        .compatOnChange(of: livePreview) { _, enabled in
             if !enabled { endPreview() }
         }
         .onDisappear {

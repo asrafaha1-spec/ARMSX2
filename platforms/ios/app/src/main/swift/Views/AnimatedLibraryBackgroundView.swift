@@ -18,7 +18,7 @@ struct AnimatedLibraryBackgroundView: View {
     @State private var frames: [AnimatedBackgroundLoader.Frame] = []
     @State private var staticImage: UIImage?
     @State private var loadFailed = false
-    @State private var frameRates = UIFrameRateSettings.shared
+    @ObservedObject private var frameRates = UIFrameRateSettings.shared
 
     var body: some View {
         Group {

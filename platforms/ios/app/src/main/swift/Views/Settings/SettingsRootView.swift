@@ -620,11 +620,11 @@ struct SettingsRootView: View {
 
     let resetToRootRequest: Int
     let onNavigationPathActivityChanged: (Bool) -> Void
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     let onPreviousControllerTab: @MainActor () -> Bool
     let onNextControllerTab: @MainActor () -> Bool
     let onControllerBoundary: @MainActor (MenuControllerCommand) -> Bool
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
     @State private var controllerDestinationEntryTask: Task<Void, Never>?
     @State private var rootNeedsControllerReentry = false
     @State private var jitAvailable = false
@@ -916,7 +916,7 @@ struct SettingsRootView: View {
         .scrollDisabled(false)
         .scrollBounceBehavior(.always)
         .scrollPosition(id: $rootScrollPositionID, anchor: .top)
-        .onChange(of: rootScrollPositionID) { _, _ in
+        .compatOnChange(of: rootScrollPositionID) { _, _ in
             // SwiftUI updates this binding for direct-finger scrolling as
             // well as programmatic/controller scrolling. Persist that common
             // viewport anchor instead of tying restoration to input mode.
@@ -980,7 +980,7 @@ struct SettingsRootView: View {
         .safeAreaInset(edge: .top) {
             Color.clear.frame(height: 6)
         }
-        .onChange(of: menuTabIsActive) { _, isActive in
+        .compatOnChange(of: menuTabIsActive) { _, isActive in
             if isActive,
                rootScrollPositionID == nil,
                !rememberedRootScrollPositionID.isEmpty {
@@ -1017,7 +1017,7 @@ struct SettingsRootView: View {
             }
         }
         }
-        .onChange(of: resetToRootRequest) { _, _ in
+        .compatOnChange(of: resetToRootRequest) { _, _ in
             guard !navigationPath.isEmpty else { return }
             var transaction = Transaction(animation: nil)
             transaction.disablesAnimations = true
@@ -1025,7 +1025,7 @@ struct SettingsRootView: View {
                 navigationPath.removeAll()
             }
         }
-        .onChange(of: navigationPath) { previousPath, currentPath in
+        .compatOnChange(of: navigationPath) { previousPath, currentPath in
             // Remember the root row from the route itself. The root List can
             // recycle/unregister its focused probe before the shared session
             // observes the scope change, so probe-owned memory may otherwise
@@ -1451,7 +1451,7 @@ struct SettingsRootView: View {
 }
 
 private struct LanguageSettingsView: View {
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
 
     var body: some View {
         Form {
@@ -1480,7 +1480,7 @@ private struct LanguageSettingsView: View {
 }
 
 private struct SettingsAboutView: View {
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
 
     var body: some View {
         Form {
@@ -1499,7 +1499,7 @@ private struct SettingsAboutView: View {
 }
 
 private struct NetworkSettingsView: View {
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
     @State private var hosts: [DNSHost] = []
     @State private var lastPersistedHosts: [DNSHost] = []
     @State private var networkAdapters: [String] = []
@@ -1629,7 +1629,7 @@ private struct NetworkSettingsView: View {
             loadNetworkAdaptersIfNeeded()
             loadHosts()
         }
-        .onChange(of: hosts) { _, newHosts in
+        .compatOnChange(of: hosts) { _, newHosts in
             guard hasLoadedHosts, newHosts != lastPersistedHosts else {
                 return
             }

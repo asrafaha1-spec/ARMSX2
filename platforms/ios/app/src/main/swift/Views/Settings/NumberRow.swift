@@ -289,7 +289,7 @@ struct NumberRow: View {
     private let style: Style
     private let accessory: NumberRowAccessory?
     private let hint: String?
-    private let settings: SettingsStore
+    @ObservedObject private var settings: SettingsStore
 
     @Environment(\.numberRowStyle) private var rowStyle
     @Environment(\.numberRowActivity) private var activity
@@ -452,11 +452,11 @@ struct NumberRow: View {
                 onIncrement: { controllerAdjust(by: 1) },
                 onDecrement: { controllerAdjust(by: -1) }
             )
-            .onChange(of: store.wrappedValue) { _, _ in
+            .compatOnChange(of: store.wrappedValue) { _, _ in
                 guard isDragging else { return }
                 activity.update(localizedTitle, displayText, true)
             }
-            .onChange(of: fieldFocused) { _, focused in
+            .compatOnChange(of: fieldFocused) { _, focused in
                 if !focused { commit() }
             }
             .onDisappear(perform: release)
@@ -943,6 +943,8 @@ private struct OptionalHint: ViewModifier {
 /// enough to confirm, but its success feedback should stay in context instead
 /// of replacing the current screen with a second modal.
 struct ConfirmedSettingsResetButton: View {
+    @ObservedObject private var observedControllerPrompt = ControllerPrompt.shared
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     let title: String
     let confirmationTitle: String
     let confirmationMessage: String

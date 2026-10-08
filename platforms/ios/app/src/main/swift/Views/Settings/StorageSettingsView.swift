@@ -53,7 +53,7 @@ private struct StoragePaths: Sendable {
 }
 
 private struct StorageExternalGamesAlertCommandListener: View {
-    let controllerInput: MenuControllerInputRouter
+    @ObservedObject var controllerInput: MenuControllerInputRouter
     let onCommand: (MenuControllerCommand) -> Void
 
     var body: some View {
@@ -61,7 +61,7 @@ private struct StorageExternalGamesAlertCommandListener: View {
             .frame(width: 0, height: 0)
             .allowsHitTesting(false)
             .accessibilityHidden(true)
-            .onChange(of: controllerInput.latestEvent) { _, event in
+            .compatOnChange(of: controllerInput.latestEvent) { _, event in
                 guard let event,
                       event.captureOwner
                         == MenuControllerNavigationCaptureOwner
@@ -288,8 +288,8 @@ private enum StorageCleaner {
 }
 
 struct StorageSettingsView: View {
-    @State private var settings = SettingsStore.shared
-    @State private var externalLibrary = ExternalGameLibrary.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var externalLibrary = ExternalGameLibrary.shared
     @State private var report = StorageReport()
     @State private var isWorking = false
     @State private var pendingAction: StorageClearAction?
@@ -485,10 +485,10 @@ struct StorageSettingsView: View {
             externalLibrary.reload()
             await refreshReport()
         }
-        .onChange(of: externalActionMessage) { _, _ in
+        .compatOnChange(of: externalActionMessage) { _, _ in
             updateExternalGamesAlertCapture()
         }
-        .onChange(of: controllerInput?.hasConnectedController) { _, _ in
+        .compatOnChange(of: controllerInput?.hasConnectedController) { _, _ in
             updateExternalGamesAlertCapture()
         }
         .onDisappear {

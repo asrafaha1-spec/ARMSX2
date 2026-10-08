@@ -1,0 +1,39 @@
+# Fast type-check of the SwiftUI frontend against the iOS 16.0 deployment target.
+# It does not build the emulator core, so it returns in minutes instead of an hour and
+# reports every "only available in iOS 17/18/26" use in one pass.
+name: iOS 16 Swift check
+
+on:
+  push:
+    branches:
+      - ios16-compat
+    paths:
+      - 'platforms/ios/app/src/main/swift/**'
+      - 'platforms/ios/app/src/main/cpp/**'
+      - '.github/workflows/ios16-swift-check.yml'
+  workflow_dispatch:
+
+jobs:
+  typecheck:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Type-check Swift for iOS 16.0
+        working-directory: platforms/ios/app/src/main
+        run: |
+          set -o pipefail
+          SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
+          swiftc -typecheck \
+            -swift-version 6 \
+            -target arm64-apple-ios16.0 \
+            -sdk "$SDK" \
+            -import-objc-header cpp/ARMSX2-Bridging-Header.h \
+            -I cpp \
+            -module-name ARMSX2iOS \
+            $(find swift -name '*.swift' | sort) 2>&1 | tee "$RUNNER_TEMP/swift-check.log"
+
+      - name: Summarise errors
+        if: failure()
+        run: |
+          grep -E "error:" "$RUNNER_TEMP/swift-check.log" | sed -E 's#^.*/swift/##' | sort | uniq -c | sort -rn | head -150

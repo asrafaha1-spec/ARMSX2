@@ -20,7 +20,7 @@ private struct ThemePresetFocusAnimation: CustomAnimation {
 }
 
 struct MenuThemePresetShortcutOverlay: View {
-    let controllerInput: MenuControllerInputRouter
+    @ObservedObject var controllerInput: MenuControllerInputRouter
     let isEnabled: Bool
 
     private struct Presentation: Equatable {
@@ -37,8 +37,8 @@ struct MenuThemePresetShortcutOverlay: View {
         let canSaveCustomTheme: Bool
     }
 
-    @State private var settings = SettingsStore.shared
-    @State private var themeGallery = ThemeGalleryStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var themeGallery = ThemeGalleryStore.shared
     @State private var presentation: Presentation?
     @State private var pendingChange: PendingChange?
     @State private var selectedActionIndex = 0
@@ -119,7 +119,7 @@ struct MenuThemePresetShortcutOverlay: View {
         .allowsHitTesting(pendingChange != nil)
         .accessibilityElement(children: .combine)
         .animation(focusAnimation, value: presentation)
-        .onChange(of: controllerInput.latestThemePresetRequest) { _, request in
+        .compatOnChange(of: controllerInput.latestThemePresetRequest) { _, request in
             guard let request, isEnabled, controllerInput.canChangeMainMenuTheme else { return }
             let selections = themeGallery.orderedSelections
             let current = themeGallery.currentSelection(for: settings)
@@ -149,7 +149,7 @@ struct MenuThemePresetShortcutOverlay: View {
             )
             controllerInput.playFeedback(.contextMenu)
         }
-        .onChange(of: controllerInput.latestEvent) { _, event in
+        .compatOnChange(of: controllerInput.latestEvent) { _, event in
             guard let event,
                   event.captureOwner
                     == MenuControllerNavigationCaptureOwner.themePresetShortcut,
@@ -164,7 +164,7 @@ struct MenuThemePresetShortcutOverlay: View {
                 presentation = nil
             } catch { }
         }
-        .onChange(of: isEnabled) { _, enabled in
+        .compatOnChange(of: isEnabled) { _, enabled in
             if !enabled {
                 presentation = nil
                 cancelPendingChange(playsFeedback: false)

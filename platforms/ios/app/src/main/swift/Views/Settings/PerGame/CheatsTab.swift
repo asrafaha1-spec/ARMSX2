@@ -4,6 +4,7 @@
 import SwiftUI
 
 struct CheatsTab: View {
+    @ObservedObject private var observedMenuAudioPackManager = MenuAudioPackManager.shared
     @Binding var enabled: Bool
     @Binding var enableGameFixes: Bool
     @Binding var enableGameDBHardwareFixes: Bool
@@ -12,7 +13,7 @@ struct CheatsTab: View {
     @Binding var showCheatsManager: Bool
 
     let savesToRunningGame: Bool
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
 
     var body: some View {
         PerGameTab(title: settings.localized("Cheats & Patches")) {

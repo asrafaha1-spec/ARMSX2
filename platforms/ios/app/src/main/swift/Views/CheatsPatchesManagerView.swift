@@ -55,6 +55,7 @@ private enum InstalledFileRemoval {
 }
 
 struct CheatsPatchesManagerView: View {
+    @ObservedObject private var observedMenuAudioPackManager = MenuAudioPackManager.shared
     private enum ControllerTarget: Hashable {
         case done
         case retryIdentity
@@ -76,10 +77,10 @@ struct CheatsPatchesManagerView: View {
     let isoName: String
     let gameTitle: String
     let launchContext: CheatsPatchesLaunchContext
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
 
-    @State private var settings = SettingsStore.shared
-    @State private var store = PatchStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var store = PatchStore.shared
     @State private var showImportPicker = false
     @State private var importAsCheat = false
     @State private var patchSourcesDraft: [String] = []
@@ -146,7 +147,7 @@ struct CheatsPatchesManagerView: View {
                 }
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
-                .onChange(of: controllerTarget) { _, target in
+                .compatOnChange(of: controllerTarget) { _, target in
                     withAnimation(.snappy(duration: 0.22)) {
                         proxy.scrollTo(target, anchor: .center)
                     }
@@ -194,12 +195,12 @@ struct CheatsPatchesManagerView: View {
                     priority: 500
                 )
             }
-            .onChange(of: controllerInput?.latestEvent) { _, event in
+            .compatOnChange(of: controllerInput?.latestEvent) { _, event in
                 guard let event else { return }
                 handleControllerCommand(event)
             }
             // A touch drops the capture, so take it back when the pad returns.
-            .onChange(of: controllerInput?.isControllerNavigationEnabled) { _, enabled in
+            .compatOnChange(of: controllerInput?.isControllerNavigationEnabled) { _, enabled in
                 guard enabled == true else { return }
                 controllerInput?.setNavigationCaptured(
                     true,

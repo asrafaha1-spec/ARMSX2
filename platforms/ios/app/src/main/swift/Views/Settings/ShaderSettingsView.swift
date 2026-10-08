@@ -4,7 +4,7 @@
 import SwiftUI
 
 struct ShaderSettingsView: View {
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
     @Environment(\.menuControllerInputRouter) private var controllerInput
     @Environment(\.menuBackgroundHost) private var backgroundHost
     @State private var selectedCategoryID = "shaders"

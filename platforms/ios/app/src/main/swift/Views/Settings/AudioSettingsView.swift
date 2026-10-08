@@ -17,8 +17,8 @@ private enum AudioFilePickerDestination {
 }
 
 struct AudioSettingsView: View {
-    @State private var settings = SettingsStore.shared
-    @State private var audioPack = MenuAudioPackManager.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var audioPack = MenuAudioPackManager.shared
     @Environment(\.menuControllerInputRouter) private var controllerInput
     @State private var isAudioFilePickerPresented = false
     @State private var audioFilePickerDestination: AudioFilePickerDestination?
@@ -107,7 +107,7 @@ struct AudioSettingsView: View {
             message: audioPackMessage?.detail ?? "",
             actions: [.ok]
         )
-        .onChange(of: audioPackMessage?.id) { _, messageID in
+        .compatOnChange(of: audioPackMessage?.id) { _, messageID in
             guard messageID != nil else { return }
             MenuAudioPackManager.shared.playEvent(.uiToast)
             controllerInput?.playTouchHaptics(.contextMenu)

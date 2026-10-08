@@ -109,24 +109,23 @@ enum VirtualPadButtonOffset {
     }
 }
 
-@Observable
-final class PadLayoutStore: @unchecked Sendable {
+final class PadLayoutStore: ObservableObject, @unchecked Sendable {
     static let shared = PadLayoutStore()
 
     static let actionButtonIDs = ["cross", "circle", "square", "triangle"]
     static let perButtonIDs = ["triangle", "circle", "square", "cross", "up", "down", "left", "right"]
     static let groupIDs = ["dpad", "action", "l1", "l2", "r1", "r2", "lstick", "rstick", "select", "start"]
 
-    var portrait: [String: PadGroupPosition] = [:]
-    var landscape: [String: PadGroupPosition] = [:]
+    @Published var portrait: [String: PadGroupPosition] = [:]
+    @Published var landscape: [String: PadGroupPosition] = [:]
 
     // Per-button overrides — only populated when the user moves an individual button.
-    var perButtonPortrait: [String: PadGroupPosition] = [:]
-    var perButtonLandscape: [String: PadGroupPosition] = [:]
+    @Published var perButtonPortrait: [String: PadGroupPosition] = [:]
+    @Published var perButtonLandscape: [String: PadGroupPosition] = [:]
 
     // Group-level control visibility. Keys are group IDs; value `false` means hidden.
     // Absent key means visible (default). Stored globally, not per-orientation.
-    var controlVisibility: [String: Bool] = [:]
+    @Published var controlVisibility: [String: Bool] = [:]
 
     // MARK: - Default positions (derived from current hardcoded layout)
 

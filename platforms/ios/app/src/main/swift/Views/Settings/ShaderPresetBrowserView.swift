@@ -19,7 +19,7 @@ struct ShaderPresetBrowserView: View {
     let selectedToken: String
     let localized: @MainActor (String) -> String
     let onSelect: @MainActor (String) -> Void
-    var controllerInput: MenuControllerInputRouter? = nil
+    @ObservedOptional var controllerInput: MenuControllerInputRouter? = nil
     var onClose: (@MainActor () -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
@@ -297,9 +297,10 @@ struct ShaderPresetBrowserView: View {
 /// Selective removal is kept in a separate presentation so normal preset browsing remains a
 /// one-action list. Bundled presets and locally authored My Presets never enter this model.
 private struct ShaderDownloadManagerView: View {
+    @ObservedObject private var observedMenuAudioPackManager = MenuAudioPackManager.shared
     let selectedToken: String
     let localized: @MainActor (String) -> String
-    var controllerInput: MenuControllerInputRouter? = nil
+    @ObservedOptional var controllerInput: MenuControllerInputRouter? = nil
     let onDeletedActivePreset: @MainActor () -> Void
 
     @Environment(\.dismiss) private var dismiss

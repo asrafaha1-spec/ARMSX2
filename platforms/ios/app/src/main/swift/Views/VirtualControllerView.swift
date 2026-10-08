@@ -53,10 +53,11 @@ enum HapticManager {
 }
 
 struct VirtualControllerView: View {
-    @State private var settings = SettingsStore.shared
-    @State private var dynamicSettings = DynamicThumbstickSettings.shared
-    @State private var skinLibrary = VPadSkinLibraryStore.shared
-    @State private var layout = PadLayoutStore.shared
+    @ObservedObject private var observedEmulatorBridge = EmulatorBridge.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var dynamicSettings = DynamicThumbstickSettings.shared
+    @ObservedObject private var skinLibrary = VPadSkinLibraryStore.shared
+    @ObservedObject private var layout = PadLayoutStore.shared
     @State private var swipeInput = SwipeCameraInputDriver()
     @State private var gyroscopeInput = VirtualPadGyroscopeController()
     @State private var ownedTouchActionSession = VirtualPadTouchActionSession()
@@ -307,32 +308,32 @@ struct VirtualControllerView: View {
             activeTouchActionSession.refreshHardcoreAutomaticFireRestriction()
             configureAuxiliaryInputs()
         }
-        .onChange(of: skinLibrary.selectedSkinID) { _, _ in
+        .compatOnChange(of: skinLibrary.selectedSkinID) { _, _ in
             ARMSX2VirtualPadMaskImageCache.prewarm(descriptor: effectiveSkinDescriptor)
         }
-        .onChange(of: skinDescriptor) { _, _ in
+        .compatOnChange(of: skinDescriptor) { _, _ in
             ARMSX2VirtualPadMaskImageCache.prewarm(descriptor: effectiveSkinDescriptor)
         }
-        .onChange(of: dynamicSettings.swipeCamera) { _, _ in
+        .compatOnChange(of: dynamicSettings.swipeCamera) { _, _ in
             resetDynamicInputs()
             configureAuxiliaryInputs()
         }
-        .onChange(of: dynamicSettings.gyroscopeCamera) { _, _ in
+        .compatOnChange(of: dynamicSettings.gyroscopeCamera) { _, _ in
             configureAuxiliaryInputs()
         }
-        .onChange(of: dynamicSettings.legacyThumbsticks) { _, _ in
+        .compatOnChange(of: dynamicSettings.legacyThumbsticks) { _, _ in
             resetDynamicInputs()
         }
-        .onChange(of: dynamicSettings.dynamicThumbsticks) { _, _ in
+        .compatOnChange(of: dynamicSettings.dynamicThumbsticks) { _, _ in
             resetDynamicInputs()
         }
-        .onChange(of: dynamicSettings.convertSwipeToDynamicJoystick) { _, _ in
+        .compatOnChange(of: dynamicSettings.convertSwipeToDynamicJoystick) { _, _ in
             resetDynamicInputs()
         }
-        .onChange(of: dynamicSettings.leftThumbstickActionsEnabled) { _, _ in
+        .compatOnChange(of: dynamicSettings.leftThumbstickActionsEnabled) { _, _ in
             resetDynamicInputs()
         }
-        .onChange(of: dynamicSettings.rightThumbstickActionsEnabled) { _, _ in
+        .compatOnChange(of: dynamicSettings.rightThumbstickActionsEnabled) { _, _ in
             resetDynamicInputs()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
@@ -856,6 +857,8 @@ struct VirtualControllerView: View {
 
 // MARK: - Manifest v2 single button
 private struct SkinManifestButtonView: View {
+    @ObservedObject private var observedEmulatorBridge = EmulatorBridge.shared
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     let button: ARMSX2PadButton
     let visualRect: CGRect
     let hitRect: CGRect

@@ -37,7 +37,7 @@ struct OrbitKeysSettingsPanel: View {
               .padding(.trailing, 14)
               .padding(.bottom, 18)
           }
-          .onChange(of: model.selectedKeyboardSettingsOption) { _, option in
+          .compatOnChange(of: model.selectedKeyboardSettingsOption) { _, option in
             withAnimation(.easeInOut(duration: 0.18)) {
               scrollProxy.scrollTo(option, anchor: .center)
             }

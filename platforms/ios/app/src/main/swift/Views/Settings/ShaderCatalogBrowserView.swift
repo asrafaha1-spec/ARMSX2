@@ -12,7 +12,7 @@ private struct ShaderCatalogGroup: Identifiable {
 struct ShaderCatalogBrowserView: View {
     let localized: @MainActor (String) -> String
     let onSelect: @MainActor (String) -> Void
-    var controllerInput: MenuControllerInputRouter? = nil
+    @ObservedOptional var controllerInput: MenuControllerInputRouter? = nil
 
     @Environment(\.dismiss) private var dismiss
     @StateObject private var catalog = ShaderCatalog()

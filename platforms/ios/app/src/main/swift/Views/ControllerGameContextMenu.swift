@@ -44,8 +44,9 @@ struct GameLibraryControllerMenuItem: Identifiable, Equatable {
 }
 
 struct ControllerGameContextMenu: View {
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     let game: ISOEntry
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     let sectionTitle: String
     let items: [GameLibraryControllerMenuItem]
     let selectedAction: GameLibraryControllerMenuAction?
@@ -244,7 +245,7 @@ struct ControllerGameContextMenu: View {
             }
             .frame(height: maxHeight)
             .scrollIndicators(.visible)
-            .onChange(of: selectedAction) { _, action in
+            .compatOnChange(of: selectedAction) { _, action in
                 guard let action else { return }
                 withAnimation(.snappy(duration: 0.22)) {
                     proxy.scrollTo(action, anchor: .center)
@@ -1241,6 +1242,7 @@ private struct StopConfirmationSourceModifier: ViewModifier {
 /// Glass on iOS 26, the frosted graphite panel before that. Its buttons keep
 /// the alert's action ids and selection index, so controller input is as before.
 struct StopGameConfirmation: View {
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     let gameTitle: String
     let anchor: StopConfirmationAnchor?
     let selectedIndex: Int

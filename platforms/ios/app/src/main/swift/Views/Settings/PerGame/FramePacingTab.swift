@@ -5,7 +5,7 @@ import SwiftUI
 
 struct FramePacingTab: View {
     @Binding var enabled: Bool
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
 
     @Binding var perGameFramePacingPreset: Int
 

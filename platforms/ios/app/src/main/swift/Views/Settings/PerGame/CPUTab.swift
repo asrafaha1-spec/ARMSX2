@@ -23,7 +23,7 @@ struct CPUTab: View {
     @Binding var perGameVUClamp: Int
 
     let savesToRunningGame: Bool
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
     let eeCycleRateUseGlobalSentinel: Int
     let fastBootUseGlobalSentinel: Int
     let fastBootOff: Int

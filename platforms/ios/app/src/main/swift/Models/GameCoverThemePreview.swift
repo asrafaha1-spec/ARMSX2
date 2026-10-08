@@ -4,7 +4,6 @@
 import CoreGraphics
 import Foundation
 import ImageIO
-import Observation
 import SwiftUI
 
 struct GameCoverThemePreview: Equatable {
@@ -23,15 +22,14 @@ struct GameCoverThemePreview: Equatable {
 /// Cached cover colours apply synchronously; uncached analysis starts as soon
 /// as the card receives focus.
 @MainActor
-@Observable
-final class GameCoverThemePreviewStore {
+final class GameCoverThemePreviewStore: ObservableObject {
     static let shared = GameCoverThemePreviewStore()
 
-    private(set) var preview: GameCoverThemePreview?
+    @Published private(set) var preview: GameCoverThemePreview?
 
-    @ObservationIgnored private var analysisTask: Task<Void, Never>?
-    @ObservationIgnored private var requestToken = UUID()
-    @ObservationIgnored private var cache: [String: CoverThemeAnalysis] = [:]
+    private var analysisTask: Task<Void, Never>?
+    private var requestToken = UUID()
+    private var cache: [String: CoverThemeAnalysis] = [:]
 
     private init() {}
 

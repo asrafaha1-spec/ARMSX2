@@ -85,7 +85,14 @@ iOS device.
 
 - `build-ios-xcode/` is generated output and should not be committed.
 - The build target is iOS device arm64 by default.
-- Minimum iOS version is 17.4.
+- Minimum iOS version is 16.0. The UI uses iOS 17 and iOS 26 APIs only through
+  `swift/Models/Compat.swift` or `#available` checks, so older systems get a
+  fallback (system materials instead of Liquid Glass, `ObservableObject` models
+  instead of Observation).
+- On iOS 16 JIT uses the legacy path: the process must have `CS_DEBUGGED` set
+  (TrollStore "enable JIT", AltJIT/JitStreamer, SideJITServer, or a debugger).
+  StikDebug requires iOS 17.4+, so it cannot be used on iOS 16. Without JIT the
+  emulator falls back to the interpreter, which is much slower.
 - JIT availability depends on how the app is signed and launched. Unsigned IPAs
   may need to be resigned or launched with a compatible sideloading/debug setup.
 - Do not rename low-level iOS JIT/runtime symbols unless you are intentionally

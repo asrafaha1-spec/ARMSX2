@@ -10,7 +10,7 @@ struct FixesTab: View {
     @Binding var perGameFixes: [String: Int]
 
     let savesToRunningGame: Bool
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
 
     var body: some View {
         PerGameTab(title: settings.localized("Fixes & Compatibility")) {

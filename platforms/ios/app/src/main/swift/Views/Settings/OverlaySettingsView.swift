@@ -4,7 +4,7 @@
 import SwiftUI
 
 struct OverlaySettingsView: View {
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
 
     static let controllerTargetOrder = [
         "overlay.preset",

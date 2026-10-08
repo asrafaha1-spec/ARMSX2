@@ -452,7 +452,7 @@ private struct OrbitKeysSelectionDot: View {
       .onAppear {
         pulse(for: trigger)
       }
-      .onChange(of: trigger) { _, newValue in
+      .compatOnChange(of: trigger) { _, newValue in
         pulse(for: newValue)
       }
       .onDisappear {
@@ -608,7 +608,7 @@ struct OrbitKeysOrbitalOrbField: View {
       ]
       lastSettledPosition = selectedPosition
     }
-    .onChange(of: targetStickVector) { _, newValue in
+    .compatOnChange(of: targetStickVector) { _, newValue in
       let now = Date.timeIntervalSinceReferenceDate
       let currentValue = anchorVector(at: now)
       anchorTransitions.append(
@@ -623,10 +623,10 @@ struct OrbitKeysOrbitalOrbField: View {
         anchorTransitions.removeFirst(anchorTransitions.count - 80)
       }
     }
-    .onChange(of: selectedPosition) { _, _ in
+    .compatOnChange(of: selectedPosition) { _, _ in
       updateOrbitFocusForSelection()
     }
-    .onChange(of: customSelectedAnchor) { _, _ in
+    .compatOnChange(of: customSelectedAnchor) { _, _ in
       updateOrbitFocusForSelection()
     }
     .task(id: selectedPosition) {
@@ -653,7 +653,7 @@ struct OrbitKeysOrbitalOrbField: View {
       trailSampleResetTime = now
       self.lastSettledPosition = selectedPosition
     }
-    .onChange(of: characterTrigger) { _, _ in
+    .compatOnChange(of: characterTrigger) { _, _ in
       guard !reduceMotion,
         customCharacterAnchor != nil || (characterFace != nil && characterPosition != nil)
       else {

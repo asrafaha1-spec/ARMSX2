@@ -29,7 +29,7 @@ struct MetalGameView: UIViewRepresentable {
 }
 
 struct PhoneGameSurface: View {
-    @State private var appState = AppState.shared
+    @ObservedObject private var appState = AppState.shared
 
     var body: some View {
         if appState.externalDisplayConnected {
@@ -42,8 +42,8 @@ struct PhoneGameSurface: View {
 
 /// The noninteractive AirPlay/external-display scene
 struct ExternalGameDisplayView: View {
-    @State private var appState = AppState.shared
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var appState = AppState.shared
+    @ObservedObject private var settings = SettingsStore.shared
 
     var body: some View {
         ZStack {

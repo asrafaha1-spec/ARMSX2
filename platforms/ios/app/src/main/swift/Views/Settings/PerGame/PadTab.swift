@@ -4,11 +4,12 @@
 import SwiftUI
 
 struct PadTab: View {
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     @Binding var padLayoutIdentity: PadLayoutGameIdentity?
     @Binding var showPadLayoutEditor: Bool
 
-    let layoutPresets: PadLayoutPresetStore
-    let skinLibrary: VPadSkinLibraryStore
+    @ObservedObject var layoutPresets: PadLayoutPresetStore
+    @ObservedObject var skinLibrary: VPadSkinLibraryStore
     let savesToRunningGame: Bool
     let iso: String
     let hasGameSettingsIdentity: Bool

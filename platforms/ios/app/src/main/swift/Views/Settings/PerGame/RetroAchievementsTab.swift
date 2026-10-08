@@ -8,7 +8,7 @@ struct RetroAchievementsTab: View {
     @Binding var raEnabledOverride: Int
     @Binding var raHardcoreOverride: Int
 
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
 
     var body: some View {
         PerGameTab(title: settings.localized("RetroAchievements")) {

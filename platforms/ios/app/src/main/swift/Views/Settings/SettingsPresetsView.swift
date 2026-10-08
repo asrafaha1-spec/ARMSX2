@@ -89,9 +89,9 @@ private struct ARMSX2FolderPicker: UIViewControllerRepresentable {
 }
 
 struct SettingsPresetsView: View {
-    @State private var settings = SettingsStore.shared
-    @State private var skinLibrary = VPadSkinLibraryStore.shared
-    @State private var folderAccess = InitialContentBootstrap.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var skinLibrary = VPadSkinLibraryStore.shared
+    @ObservedObject private var folderAccess = InitialContentBootstrap.shared
     @State private var presentedSheet: SettingsPresetsSheet?
     @State private var message: SettingsPresetsMessage?
     @State private var isResetSettingsConfirmationPresented = false

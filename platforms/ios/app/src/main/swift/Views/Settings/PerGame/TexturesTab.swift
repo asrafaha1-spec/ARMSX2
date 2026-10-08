@@ -11,7 +11,7 @@ struct TexturesTab: View {
     @Binding var controllerTargets: [String]
 
     let serial: String
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
 
     var body: some View {
         TexturePacksView(serial: serial, controllerTargets: $controllerTargets) {

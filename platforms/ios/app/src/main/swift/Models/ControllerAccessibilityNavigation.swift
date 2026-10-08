@@ -1,7 +1,6 @@
 // ControllerAccessibilityNavigation.swift — native-first controller focus
 // SPDX-License-Identifier: GPL-3.0+
 
-import Observation
 import QuartzCore
 import SwiftUI
 import UIKit
@@ -164,9 +163,8 @@ extension EnvironmentValues {
 }
 
 @MainActor
-@Observable
-fileprivate final class ControllerAccessibilityTargetFocusState {
-    var isFocused = false
+fileprivate final class ControllerAccessibilityTargetFocusState: ObservableObject {
+    @Published var isFocused = false
 }
 
 /// A List/Form marker remains beside its real scroll surface even when Liquid
@@ -186,8 +184,7 @@ private final class ControllerAccessibilityDisplayLinkDriver: NSObject {
 }
 
 @MainActor
-@Observable
-final class ControllerAccessibilityNavigationSession {
+final class ControllerAccessibilityNavigationSession: ObservableObject {
     private final class WeakView {
         weak var value: UIView?
         init(_ value: UIView?) { self.value = value }
@@ -236,95 +233,95 @@ final class ControllerAccessibilityNavigationSession {
         let destinationOffset: CGPoint
     }
 
-    @ObservationIgnored private weak var controllerInput: MenuControllerInputRouter?
-    @ObservationIgnored private weak var scopeView: UIView?
-    @ObservationIgnored private weak var window: UIWindow?
-    @ObservationIgnored private var measuredScopeFrame = CGRect.zero
+    private weak var controllerInput: MenuControllerInputRouter?
+    private weak var scopeView: UIView?
+    private weak var window: UIWindow?
+    private var measuredScopeFrame = CGRect.zero
     /// Measured when read: an ancestor can move the scope without laying it out again.
     private var scopeFrame: CGRect {
         guard let scopeView, let window = scopeView.window else { return measuredScopeFrame }
         return scopeView.convert(scopeView.bounds, to: window)
     }
-    @ObservationIgnored private var scopeKey = ""
-    @ObservationIgnored private var registrationID: UUID?
-    @ObservationIgnored private var targets: [String: Target] = [:]
-    @ObservationIgnored private var scrollOwners: [String: WeakView] = [:]
-    @ObservationIgnored private var registrationKeys: [UUID: String] = [:]
-    @ObservationIgnored private let scrollSurfaces = NSHashTable<AnyObject>.weakObjects()
-    @ObservationIgnored private var duplicateBaseKeys = Set<String>()
-    @ObservationIgnored private var registrationSequence: UInt64 = 0
-    @ObservationIgnored private var declaredOrder: [String] = []
-    @ObservationIgnored private var declaredOrderSet = Set<String>()
-    @ObservationIgnored private var declaredOrderIndex: [String: Int] = [:]
-    @ObservationIgnored private var focusedKey: String?
-    @ObservationIgnored private var permitsAutomaticFocus = true
-    @ObservationIgnored private var scrollToTarget: ((String, UnitPoint) -> Void)?
-    @ObservationIgnored private var onBack: (@MainActor () -> Bool)?
-    @ObservationIgnored private var onContextMenu: (@MainActor (String) -> Bool)?
-    @ObservationIgnored private var onPreviousTab: (@MainActor () -> Bool)?
-    @ObservationIgnored private var onNextTab: (@MainActor () -> Bool)?
-    @ObservationIgnored private var onBoundary: (@MainActor (MenuControllerCommand) -> Bool)?
-    @ObservationIgnored private var boundaryRules: [ControllerAccessibilityBoundaryRule] = []
-    @ObservationIgnored private var directionalLinks: [ControllerAccessibilityDirectionalLink] = []
-    @ObservationIgnored private var pageDirectionalLinks: [ControllerAccessibilityDirectionalLink] = []
-    @ObservationIgnored private var prioritizesDirectionalLinks = false
-    @ObservationIgnored private var confinesHorizontalFocusMovement = false
-    @ObservationIgnored private var wrapsAtListEnds = false
-    @ObservationIgnored private var focusScrollBehavior:
+    private var scopeKey = ""
+    private var registrationID: UUID?
+    private var targets: [String: Target] = [:]
+    private var scrollOwners: [String: WeakView] = [:]
+    private var registrationKeys: [UUID: String] = [:]
+    private let scrollSurfaces = NSHashTable<AnyObject>.weakObjects()
+    private var duplicateBaseKeys = Set<String>()
+    private var registrationSequence: UInt64 = 0
+    private var declaredOrder: [String] = []
+    private var declaredOrderSet = Set<String>()
+    private var declaredOrderIndex: [String: Int] = [:]
+    private var focusedKey: String?
+    private var permitsAutomaticFocus = true
+    private var scrollToTarget: ((String, UnitPoint) -> Void)?
+    private var onBack: (@MainActor () -> Bool)?
+    private var onContextMenu: (@MainActor (String) -> Bool)?
+    private var onPreviousTab: (@MainActor () -> Bool)?
+    private var onNextTab: (@MainActor () -> Bool)?
+    private var onBoundary: (@MainActor (MenuControllerCommand) -> Bool)?
+    private var boundaryRules: [ControllerAccessibilityBoundaryRule] = []
+    private var directionalLinks: [ControllerAccessibilityDirectionalLink] = []
+    private var pageDirectionalLinks: [ControllerAccessibilityDirectionalLink] = []
+    private var prioritizesDirectionalLinks = false
+    private var confinesHorizontalFocusMovement = false
+    private var wrapsAtListEnds = false
+    private var focusScrollBehavior:
         ControllerAccessibilityFocusScrollBehavior = .revealIfNeeded
-    @ObservationIgnored private var scrollAnimationDuration: Double = 0.22
-    @ObservationIgnored private var focusViewportEdgeMargin: CGFloat = 12
-    @ObservationIgnored private var focusTopAlignmentMargin: CGFloat = 0
-    @ObservationIgnored private var focusBottomAlignmentMargin: CGFloat = 0
-    @ObservationIgnored private var onActivateFocusedLabel: (@MainActor (String) -> Bool)?
-    @ObservationIgnored private var onAdjustFocusedTarget:
+    private var scrollAnimationDuration: Double = 0.22
+    private var focusViewportEdgeMargin: CGFloat = 12
+    private var focusTopAlignmentMargin: CGFloat = 0
+    private var focusBottomAlignmentMargin: CGFloat = 0
+    private var onActivateFocusedLabel: (@MainActor (String) -> Bool)?
+    private var onAdjustFocusedTarget:
         (@MainActor (String, String?, Bool) -> Void)?
-    @ObservationIgnored private var preferredInitialFocusLabel: String?
-    @ObservationIgnored private var preferredLastEntryLabel: String?
-    @ObservationIgnored private var preferredTrailingFocusLabels: [String] = []
-    @ObservationIgnored private var mountedTargetTask: Task<Void, Never>?
-    @ObservationIgnored private var focusedPresentationTask: Task<Void, Never>?
-    @ObservationIgnored private var focusPresentationRevealTask:
+    private var preferredInitialFocusLabel: String?
+    private var preferredLastEntryLabel: String?
+    private var preferredTrailingFocusLabels: [String] = []
+    private var mountedTargetTask: Task<Void, Never>?
+    private var focusedPresentationTask: Task<Void, Never>?
+    private var focusPresentationRevealTask:
         Task<Void, Never>?
-    @ObservationIgnored private var scrollPresentationDisplayLink: CADisplayLink?
-    @ObservationIgnored private var scrollPresentationDriver:
+    private var scrollPresentationDisplayLink: CADisplayLink?
+    private var scrollPresentationDriver:
         ControllerAccessibilityDisplayLinkDriver?
-    @ObservationIgnored private var scrollPresentationKey: String?
-    @ObservationIgnored private var scrollPresentationStartTime: CFTimeInterval = 0
-    @ObservationIgnored private var scrollPresentationLastFrame: CGRect?
-    @ObservationIgnored private var scrollPresentationStableFrameCount = 0
-    @ObservationIgnored private var focusMotion: FocusMotion?
-    @ObservationIgnored private var scrollPresentationCompletionTask:
+    private var scrollPresentationKey: String?
+    private var scrollPresentationStartTime: CFTimeInterval = 0
+    private var scrollPresentationLastFrame: CGRect?
+    private var scrollPresentationStableFrameCount = 0
+    private var focusMotion: FocusMotion?
+    private var scrollPresentationCompletionTask:
         Task<Void, Never>?
-    @ObservationIgnored private var readinessTask: Task<Void, Never>?
-    @ObservationIgnored private var pendingFocusKey: String?
-    @ObservationIgnored var ownerDeclaresOrder = false
-    @ObservationIgnored private var isRevealingRows = false
+    private var readinessTask: Task<Void, Never>?
+    private var pendingFocusKey: String?
+    var ownerDeclaresOrder = false
+    private var isRevealingRows = false
     // Preserve input timing across the asynchronous lazy-row mount.
-    @ObservationIgnored private var focusRepeatAcceleration: Double?
-    @ObservationIgnored private var pendingDirectionalMove:
+    private var focusRepeatAcceleration: Double?
+    private var pendingDirectionalMove:
         (direction: MenuControllerCommand, acceleration: Double?)?
-    @ObservationIgnored private var pendingFocusExpiryTask: Task<Void, Never>?
-    @ObservationIgnored private var scopeRestorationTask: Task<Void, Never>?
-    @ObservationIgnored private var adjustedValuePublicationTask:
+    private var pendingFocusExpiryTask: Task<Void, Never>?
+    private var scopeRestorationTask: Task<Void, Never>?
+    private var adjustedValuePublicationTask:
         Task<Void, Never>?
-    @ObservationIgnored private var pendingScrollFocusPublication = false
-    @ObservationIgnored private var focusIsSuspendedForScrolling = false
-    @ObservationIgnored private weak var rightStickScrollView: UIScrollView?
-    @ObservationIgnored private var rightStickManualFocusKey: String?
-    @ObservationIgnored private var rightStickFocusCandidates: [ControllerNavigationScrollFocusCandidate]?
-    @ObservationIgnored private var rightStickViewportSize = CGSize.zero
-    @ObservationIgnored private weak var publishedScrollWindow: UIWindow?
-    @ObservationIgnored private var publishedScrollFrame: CGRect?
-    @ObservationIgnored private var presentedFocusKey: String?
-    private(set) var focusPresentationIsHiddenForScrolling = false
-    @ObservationIgnored private var interactionSequence: UInt64 = 0
+    private var pendingScrollFocusPublication = false
+    private var focusIsSuspendedForScrolling = false
+    private weak var rightStickScrollView: UIScrollView?
+    private var rightStickManualFocusKey: String?
+    private var rightStickFocusCandidates: [ControllerNavigationScrollFocusCandidate]?
+    private var rightStickViewportSize = CGSize.zero
+    private weak var publishedScrollWindow: UIWindow?
+    private var publishedScrollFrame: CGRect?
+    private var presentedFocusKey: String?
+    @Published private(set) var focusPresentationIsHiddenForScrolling = false
+    private var interactionSequence: UInt64 = 0
 
-    private var focusPresentation = FocusPresentation.empty
-    private(set) var latestOrbInteraction: ControllerNavigationOrbInteraction?
-    private(set) var hasNavigableElements = false
-    private(set) var scopeRevision: UInt64 = 0
-    private(set) var isScrollPresentationActive = false
+    @Published private var focusPresentation = FocusPresentation.empty
+    @Published private(set) var latestOrbInteraction: ControllerNavigationOrbInteraction?
+    @Published private(set) var hasNavigableElements = false
+    @Published private(set) var scopeRevision: UInt64 = 0
+    @Published private(set) var isScrollPresentationActive = false
 
     var registrationIdentifier: UUID? { registrationID }
 
@@ -2421,7 +2418,7 @@ private final class ControllerAccessibilityScopeProbeView: UIView {
 }
 
 private struct ControllerAccessibilityScopeProbe: UIViewRepresentable {
-    let session: ControllerAccessibilityNavigationSession
+    @ObservedObject var session: ControllerAccessibilityNavigationSession
 
     func makeUIView(context: Context) -> ControllerAccessibilityScopeProbeView {
         let view = ControllerAccessibilityScopeProbeView()
@@ -2580,14 +2577,14 @@ fileprivate final class ControllerAccessibilityActionProbeView: UIControl {
 
 private struct ControllerAccessibilityActionProbe: UIViewRepresentable {
     let registrationID: UUID
-    let session: ControllerAccessibilityNavigationSession
+    @ObservedObject var session: ControllerAccessibilityNavigationSession
     let scopeRevision: UInt64
     let baseKey: String
     let navigationID: String?
     let label: String
     let value: String?
     let traits: UIAccessibilityTraits
-    let focusState: ControllerAccessibilityTargetFocusState
+    @ObservedObject var focusState: ControllerAccessibilityTargetFocusState
     let isEnabled: Bool
     let persistent: Bool
     let activationFeedback: MenuControllerFeedback
@@ -2653,7 +2650,7 @@ private struct ControllerAccessibilityExplicitTargetModifier: ViewModifier {
     @Environment(\.controllerAccessibilityInheritedTargetID) private var inheritedID
     @Environment(\.isEnabled) private var isEnabled
     @State private var registrationID = UUID()
-    @State private var focusState = ControllerAccessibilityTargetFocusState()
+    @StateObject private var focusState = ControllerAccessibilityTargetFocusState()
 
     private var trimmedID: String? {
         guard let source = navigationID ?? inheritedID else { return nil }
@@ -2793,7 +2790,7 @@ private struct ControllerAccessibilityOptionsList<Selection: Hashable>: View {
     let scopeID: String
     @Binding var selection: Selection
     let options: [(id: Selection, title: String)]
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.uiContentTextColour) private var contentTextColour
@@ -3131,11 +3128,11 @@ private struct ControllerAccessibilityRegisteringToggleStyle: ToggleStyle {
 }
 
 private struct ControllerAccessibilityFocusOverlay: View {
-    let session: ControllerAccessibilityNavigationSession
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedObject var session: ControllerAccessibilityNavigationSession
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     let style: ControllerNavigationOrbStyle
     let focusNeonExclusionLabels: [String]
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
 
     var body: some View {
         if controllerInput?.navigationZone != .tabBar,
@@ -3182,11 +3179,11 @@ private struct ControllerAccessibilityFocusOverlay: View {
 /// the SwiftUI content hierarchy. Install their focus presentation directly in
 /// the window so the neon and orbs cannot be hidden behind the navigation bar.
 private struct ControllerAccessibilityWindowFocusOverlay: View {
-    let session: ControllerAccessibilityNavigationSession
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedObject var session: ControllerAccessibilityNavigationSession
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     let style: ControllerNavigationOrbStyle
     let includedLabels: [String]
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -3343,15 +3340,15 @@ private struct ControllerAccessibilityTargetOrderModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onAppear { publishOrderIfActive() }
-            .onChange(of: navigationIDs) { _, value in
+            .compatOnChange(of: navigationIDs) { _, value in
                 if isActive, !isSuppressed, session?.ownerDeclaresOrder != true {
                     session?.setDeclaredOrder(value)
                     session?.setPageDirectionalLinks(links)
                 }
             }
-            .onChange(of: isActive) { _, _ in publishOrderIfActive() }
-            .onChange(of: isSuppressed) { _, _ in publishOrderIfActive() }
-            .onChange(of: session?.scopeRevision) { _, _ in publishOrderIfActive() }
+            .compatOnChange(of: isActive) { _, _ in publishOrderIfActive() }
+            .compatOnChange(of: isSuppressed) { _, _ in publishOrderIfActive() }
+            .compatOnChange(of: session?.scopeRevision) { _, _ in publishOrderIfActive() }
     }
 
     private func publishOrderIfActive() {
@@ -3380,7 +3377,7 @@ private struct ControllerAccessibilityTargetIDModifier: ViewModifier {
 }
 
 private struct ControllerAccessibilityNavigationModifier: ViewModifier {
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     let isActive: Bool
     let scopeKey: String
     let priority: Int
@@ -3411,7 +3408,7 @@ private struct ControllerAccessibilityNavigationModifier: ViewModifier {
     let declaredTargetOrder: [String]?
 
     @State private var registrationID = UUID()
-    @State private var session = ControllerAccessibilityNavigationSession()
+    @StateObject private var session = ControllerAccessibilityNavigationSession()
 
     func body(content: Content) -> some View {
         ScrollViewReader { proxy in
@@ -3426,37 +3423,37 @@ private struct ControllerAccessibilityNavigationModifier: ViewModifier {
         _ content: Body
     ) -> some View {
         content
-            .onChange(of: isActive) { _, _ in updateRegistration() }
-            .onChange(of: scopeKey) { _, _ in updateRegistration() }
-            .onChange(of: boundaryRules) { _, _ in updateRegistration() }
-            .onChange(of: directionalLinks) { _, _ in updateRegistration() }
-            .onChange(of: prioritizesDirectionalLinks) { _, _ in
+            .compatOnChange(of: isActive) { _, _ in updateRegistration() }
+            .compatOnChange(of: scopeKey) { _, _ in updateRegistration() }
+            .compatOnChange(of: boundaryRules) { _, _ in updateRegistration() }
+            .compatOnChange(of: directionalLinks) { _, _ in updateRegistration() }
+            .compatOnChange(of: prioritizesDirectionalLinks) { _, _ in
                 updateRegistration()
             }
-            .onChange(of: confinesHorizontalFocusMovement) { _, _ in
+            .compatOnChange(of: confinesHorizontalFocusMovement) { _, _ in
                 updateRegistration()
             }
-            .onChange(of: wrapsAtListEnds) { _, _ in updateRegistration() }
-            .onChange(of: focusScrollBehavior) { _, _ in updateRegistration() }
-            .onChange(of: focusViewportEdgeMargin) { _, _ in
+            .compatOnChange(of: wrapsAtListEnds) { _, _ in updateRegistration() }
+            .compatOnChange(of: focusScrollBehavior) { _, _ in updateRegistration() }
+            .compatOnChange(of: focusViewportEdgeMargin) { _, _ in
                 updateRegistration()
             }
-            .onChange(of: focusTopAlignmentMargin) { _, _ in
+            .compatOnChange(of: focusTopAlignmentMargin) { _, _ in
                 updateRegistration()
             }
-            .onChange(of: focusBottomAlignmentMargin) { _, _ in
+            .compatOnChange(of: focusBottomAlignmentMargin) { _, _ in
                 updateRegistration()
             }
-            .onChange(of: preferredInitialFocusLabel) { _, _ in
+            .compatOnChange(of: preferredInitialFocusLabel) { _, _ in
                 updateRegistration()
             }
-            .onChange(of: preferredLastEntryLabel) { _, _ in
+            .compatOnChange(of: preferredLastEntryLabel) { _, _ in
                 updateRegistration()
             }
-            .onChange(of: preferredTrailingFocusLabels) { _, _ in
+            .compatOnChange(of: preferredTrailingFocusLabels) { _, _ in
                 updateRegistration()
             }
-            .onChange(of: declaredTargetOrder) { _, _ in updateRegistration() }
+            .compatOnChange(of: declaredTargetOrder) { _, _ in updateRegistration() }
     }
 
     private func inputLifecycle<Body: View>(
@@ -3490,18 +3487,18 @@ private struct ControllerAccessibilityNavigationModifier: ViewModifier {
                 }
                 updateRegistration()
             }
-            .onChange(of: controllerInput?.hasConnectedController) { _, _ in
+            .compatOnChange(of: controllerInput?.hasConnectedController) { _, _ in
                 updateRegistration()
             }
-            .onChange(of: controllerInput?.isMenuActive) { _, _ in
+            .compatOnChange(of: controllerInput?.isMenuActive) { _, _ in
                 updateRegistration()
             }
             // A touch drops every session, and a screen that keeps its router
             // gets no other signal when the pad takes over again.
-            .onChange(of: controllerInput?.isControllerNavigationEnabled) { _, enabled in
+            .compatOnChange(of: controllerInput?.isControllerNavigationEnabled) { _, enabled in
                 if enabled == true { updateRegistration() }
             }
-            .onChange(of: controllerInput?.focusReleaseSequence) { _, _ in
+            .compatOnChange(of: controllerInput?.focusReleaseSequence) { _, _ in
                 // Analog begin/end is delivered synchronously to its owner.
                 // A delayed SwiftUI observation must not hide a newer focus.
                 if navigationIsActive,

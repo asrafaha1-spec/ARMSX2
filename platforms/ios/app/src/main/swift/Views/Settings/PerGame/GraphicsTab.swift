@@ -64,7 +64,7 @@ struct GraphicsTab: View {
 
     let savesToRunningGame: Bool
     let onBrowseShaderPreset: () -> Void
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
     var showsOnlyShaders = false
 
     // MARK: Static option tables (moved from the panel)

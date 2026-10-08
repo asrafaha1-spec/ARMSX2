@@ -190,21 +190,20 @@ private struct PadLayoutPresetLibrary: Codable {
     }
 }
 
-@Observable
-final class PadLayoutPresetStore: @unchecked Sendable {
+final class PadLayoutPresetStore: ObservableObject, @unchecked Sendable {
     static let shared = PadLayoutPresetStore()
     static let schemaVersion = 2
 
     private let libraryURL: URL
-    private(set) var presets: [PadLayoutPreset] = []
-    var globalPresetID: String? {
+    @Published private(set) var presets: [PadLayoutPreset] = []
+    @Published var globalPresetID: String? {
         didSet {
             if globalPresetID != oldValue {
                 persist()
             }
         }
     }
-    private var gameAssignments: [String: VPadGameAssignment] = [:]
+    @Published private var gameAssignments: [String: VPadGameAssignment] = [:]
 
     init(
         libraryURL: URL? = nil,

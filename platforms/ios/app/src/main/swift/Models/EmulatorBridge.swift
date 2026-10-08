@@ -85,20 +85,19 @@ enum EmulatorState: String {
     case suspended = "Suspended"
 }
 
-@Observable
-final class EmulatorBridge: @unchecked Sendable {
+final class EmulatorBridge: ObservableObject, @unchecked Sendable {
     static let shared = EmulatorBridge()
 
-    var state: EmulatorState = .stopped
-    var lastSaveDate: Date? = nil
-    var lastSaveSuccess: Bool = true
-    var biosName: String = "Unknown"
-    var buildVersion: String = ""
+    @Published var state: EmulatorState = .stopped
+    @Published var lastSaveDate: Date? = nil
+    @Published var lastSaveSuccess: Bool = true
+    @Published var biosName: String = "Unknown"
+    @Published var buildVersion: String = ""
 
-    @ObservationIgnored private var virtualRightTouchX: Float = 0
-    @ObservationIgnored private var virtualRightTouchY: Float = 0
-    @ObservationIgnored private var virtualRightMotionX: Float = 0
-    @ObservationIgnored private var virtualRightMotionY: Float = 0
+    private var virtualRightTouchX: Float = 0
+    private var virtualRightTouchY: Float = 0
+    private var virtualRightMotionX: Float = 0
+    private var virtualRightMotionY: Float = 0
 
     private init() {
         biosName = ARMSX2Bridge.biosName()

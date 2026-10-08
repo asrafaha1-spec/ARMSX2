@@ -10,14 +10,13 @@ struct ExternalGameDirectory: Identifiable, Hashable {
     let isDirectory: Bool
 }
 
-@Observable
-final class ExternalGameLibrary: @unchecked Sendable {
+final class ExternalGameLibrary: ObservableObject, @unchecked Sendable {
     static let shared = ExternalGameLibrary()
     static let didChangeNotification = Notification.Name("ARMSX2iOSExternalGameLibraryDidChange")
 
     static let defaultsKey = "ARMSX2iOSExternalGameDirectories"
 
-    private(set) var directories: [ExternalGameDirectory] = []
+    @Published private(set) var directories: [ExternalGameDirectory] = []
     private static let gameExtensions = Set(["iso", "chd", "img", "bin", "cue", "mdf", "cso", "zso", "gz", "elf"])
 
     private init() {

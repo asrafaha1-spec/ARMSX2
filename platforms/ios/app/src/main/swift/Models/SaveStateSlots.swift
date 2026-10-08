@@ -236,8 +236,7 @@ enum SaveStateFormat {
 
 /// The one action that can still be undone, and its 8 second window.
 @MainActor
-@Observable
-final class SaveStateUndoModel {
+final class SaveStateUndoModel: ObservableObject {
     enum Action {
         case load(path: String)
         case delete(slot: Int, fileName: String)
@@ -256,13 +255,13 @@ final class SaveStateUndoModel {
     static let shared = SaveStateUndoModel()
 
     /// The window of the toast on screen, from Settings, so the bar drains over the same span.
-    private(set) var duration: Double = 5
+    @Published private(set) var duration: Double = 5
 
-    private(set) var item: Item?
-    private(set) var remaining: Double = 0
+    @Published private(set) var item: Item?
+    @Published private(set) var remaining: Double = 0
     /// Set while the toast holds VoiceOver focus.
-    var focusHeld = false
-    private var timer: Task<Void, Never>?
+    @Published var focusHeld = false
+    @Published private var timer: Task<Void, Never>?
 
     var slot: Int? {
         switch item?.action {

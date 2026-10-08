@@ -12,12 +12,12 @@ struct SkinBrowserView: View {
         case ready = "Ready"
     }
 
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
     @StateObject private var catalog = SkinCatalog()
     @StateObject private var installer = SkinInstaller()
     // Held directly so the rows invalidate off the library itself rather than
     // off whatever the installer happens to be publishing.
-    @State private var skinLibrary = VPadSkinLibraryStore.shared
+    @ObservedObject private var skinLibrary = VPadSkinLibraryStore.shared
     @State private var searchText = ""
     @State private var filter: Filter = .all
     @State private var detailAlert: String?
@@ -416,8 +416,9 @@ struct SkinBrowserView: View {
 }
 
 private struct SkinPreviewSheet: View {
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     let skin: CatalogSkin
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {

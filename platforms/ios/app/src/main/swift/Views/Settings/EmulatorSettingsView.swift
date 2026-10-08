@@ -4,7 +4,7 @@
 import SwiftUI
 
 struct EmulatorSettingsView: View {
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
     @State private var stikDebugOpenFailed = false
     @State private var stikDebugOpenInProgress = false
     // Cached rather than asked per redraw: the lookup takes the achievements lock, and

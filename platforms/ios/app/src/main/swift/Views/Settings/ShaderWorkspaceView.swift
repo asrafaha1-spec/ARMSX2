@@ -15,12 +15,13 @@ private struct ShaderLayerScrollRequest: Equatable {
 /// Shared by Settings, the Game Library and the in-game Quick Menu. The host
 /// owns persistence; this view owns only shader browsing and presentation.
 struct ShaderWorkspaceView: View {
+    @ObservedObject private var observedMenuAudioPackManager = MenuAudioPackManager.shared
     @Binding var enabled: Bool
     @Binding var presetRef: String
     var perGameChain: Binding<Int>?
 
-    let settings: SettingsStore
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedObject var settings: SettingsStore
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     let savesToRunningGame: Bool
     let onLivePreviewChange: (@MainActor (String, String) -> Void)?
 
@@ -88,26 +89,26 @@ struct ShaderWorkspaceView: View {
             normalizeSelection()
             publishControllerOrder()
         }
-        .onChange(of: passLibrary.passes) { _, _ in
+        .compatOnChange(of: passLibrary.passes) { _, _ in
             normalizeSelection()
             publishControllerOrder()
         }
-        .onChange(of: selectedCategoryID) { _, _ in
+        .compatOnChange(of: selectedCategoryID) { _, _ in
             publishControllerOrder()
         }
-        .onChange(of: detailPresented) { _, _ in
+        .compatOnChange(of: detailPresented) { _, _ in
             publishControllerOrder()
         }
-        .onChange(of: showsExtra) { _, _ in
+        .compatOnChange(of: showsExtra) { _, _ in
             publishControllerOrder()
         }
-        .onChange(of: expandedPassIDs) { _, _ in
+        .compatOnChange(of: expandedPassIDs) { _, _ in
             publishControllerOrder()
         }
-        .onChange(of: expandedLayerIDs) { _, _ in
+        .compatOnChange(of: expandedLayerIDs) { _, _ in
             publishControllerOrder()
         }
-        .onChange(of: params.params) { _, _ in
+        .compatOnChange(of: params.params) { _, _ in
             publishControllerOrder()
         }
         .onAppear { publishControllerOrder() }
@@ -218,7 +219,7 @@ struct ShaderWorkspaceView: View {
                 )
                 .allowsHitTesting(false)
             }
-            .onChange(of: layerScrollRequest) { _, request in
+            .compatOnChange(of: layerScrollRequest) { _, request in
                 guard let request else { return }
                 Task { @MainActor in
                     // First let Form adopt the expanded row height. The
@@ -1169,11 +1170,12 @@ struct ShaderWorkspaceView: View {
 }
 
 private struct ShaderPassReorderButton: View {
+    @ObservedObject private var observedMenuAudioPackManager = MenuAudioPackManager.shared
     let canMoveUp: Bool
     let canMoveDown: Bool
     let label: String
     let targetID: String
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     let onMoveUp: () -> Void
     let onMoveDown: () -> Void
 

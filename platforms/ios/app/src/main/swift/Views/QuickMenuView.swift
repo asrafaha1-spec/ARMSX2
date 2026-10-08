@@ -28,11 +28,12 @@ enum QuickMenuDestination: Equatable {
 /// view to the bounded card size): two columns when the card is comfortably wide, one column
 /// otherwise. Resume is pinned inside the panel footer so it never detaches or hides rows.
 struct QuickMenuView: View {
+    @ObservedObject private var observedMenuAudioPackManager = MenuAudioPackManager.shared
     @State private var showStopConfirmation = false
     @State private var stopConfirmationAnchor: StopConfirmationAnchor?
     @Environment(\.menuControllerInputRouter) private var controllerInput
 
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
     @Binding var padVisible: Bool
     @Binding var fullScreen: Bool
     @Binding var menuButtonHidden: Bool
@@ -202,7 +203,7 @@ struct QuickMenuView: View {
                     )
                 }
         }
-        .onChange(of: showStopConfirmation) { _, isPresented in
+        .compatOnChange(of: showStopConfirmation) { _, isPresented in
             guard isPresented else { return }
             MenuAudioPackManager.shared.playEvent(.uiToast)
         }
@@ -904,7 +905,7 @@ extension PauseLayoutVariant {
 struct ChangeDiscPanel: View {
     @Environment(\.menuControllerInputRouter) private var controllerInput
 
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
     let variant: PauseLayoutVariant
     let discs: [String]
     let driveDisc: String?
@@ -1143,7 +1144,7 @@ struct ChangeDiscPanel: View {
 }
 
 struct LandscapeCommandBar: View {
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
     let gameTitle: String?
     let stopControllerNavigationID: String
     /// No target means Circle is the pad's way back.
@@ -1226,7 +1227,7 @@ struct LandscapeCommandBar: View {
 }
 
 struct QuickMenuFooter: View {
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
     let compact: Bool
     let stopControllerNavigationID: String
     let resumeControllerNavigationID: String?

@@ -15,14 +15,13 @@ import Foundation
 /// thread). A per-game INI value overrides the global toggle for the running
 /// game.
 @MainActor
-@Observable
-final class FrameTimeDynamicResolutionController {
+final class FrameTimeDynamicResolutionController: ObservableObject {
     static let shared = FrameTimeDynamicResolutionController()
 
     /// Drives the timer start/stop lifecycle. Bound to
     /// `SettingsStore.adaptiveResolutionEnabled`; the per-game override is
     /// read inside `poll()`.
-    var enabled: Bool = false
+    @Published var enabled: Bool = false
 
     // MARK: - Tuning
 
@@ -55,16 +54,16 @@ final class FrameTimeDynamicResolutionController {
 
     /// Max clamp — captured from the current UpscaleMultiplier on enable, and
     /// raised if the user raises it manually; never lowered otherwise.
-    @ObservationIgnored private var maxMultiplier: Float = 1.0
-    @ObservationIgnored private var lastChangeAt: Date = .distantPast
-    @ObservationIgnored private var lastObservedMultiplier: Float = 1.0
+    private var maxMultiplier: Float = 1.0
+    private var lastChangeAt: Date = .distantPast
+    private var lastObservedMultiplier: Float = 1.0
     /// Used by the manual-change detector: if the observed value moves by
     /// more than a step from this and we didn't write recently, the user
     /// changed it.
-    @ObservationIgnored private var lastWrittenValue: Float = 1.0
-    @ObservationIgnored private var lastWriteAt: Date = .distantPast
-    @ObservationIgnored private var pollTimer: Timer?
-    @ObservationIgnored private var suspendedForEmulationOnlyMode = false
+    private var lastWrittenValue: Float = 1.0
+    private var lastWriteAt: Date = .distantPast
+    private var pollTimer: Timer?
+    private var suspendedForEmulationOnlyMode = false
 
     private init() {}
 

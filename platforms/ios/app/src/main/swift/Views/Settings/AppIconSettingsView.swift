@@ -58,8 +58,9 @@ private enum AppInstallEnvironment {
 }
 
 struct AppIconSettingsView: View {
-    @State private var settings = SettingsStore.shared
-    @State private var logoStore = ARMSX2LogoStore.shared
+    @ObservedObject private var observedMenuAudioPackManager = MenuAudioPackManager.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var logoStore = ARMSX2LogoStore.shared
     @State private var currentIcon: String? = UIApplication.shared.alternateIconName
     @State private var pendingExport: AppIconOption?
     @State private var shareItem: ShareSheetItem?

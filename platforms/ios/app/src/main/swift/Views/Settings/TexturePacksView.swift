@@ -5,12 +5,13 @@ import SwiftUI
 
 // Every installed pack, or only one game's when serial is set, with options below them.
 struct TexturePacksView<Options: View>: View {
+    @ObservedObject private var observedControllerPrompt = ControllerPrompt.shared
     private let serial: String?
     private let options: Options
     // The per-game panel declares its whole controller order, so it reads this page's part from here.
     @Binding private var controllerTargets: [String]
     @Environment(\.menuControllerInputRouter) private var controllerInput
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
     @State private var packs: [TexturePack]?
     @State private var titles: [String: String] = [:]
     @State private var showCatalog = false
@@ -86,7 +87,7 @@ struct TexturePacksView<Options: View>: View {
         .task { await reload() }
         // Without a declared order, focus would stay on a removed pack's button.
         .controllerAccessibilityTargetOrder(packTargets)
-        .onChange(of: packTargets, initial: true) { _, targets in controllerTargets = targets }
+        .compatOnChange(of: packTargets, initial: true) { _, targets in controllerTargets = targets }
         .sheet(isPresented: $showCatalog, onDismiss: { Task { await reload() } }) {
             NavigationStack {
                 TextureCatalogView(serial: serial, controllerInput: controllerInput)
@@ -215,7 +216,7 @@ struct TexturePacksView<Options: View>: View {
 }
 
 struct TextureReplacementSettings: View {
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
 
     var body: some View {
         Section(settings.localized("Texture Replacement")) {

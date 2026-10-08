@@ -10,7 +10,7 @@ struct AudioTab: View {
     @Binding var globalVolumePercent: Int
     @Binding var perGameFastForwardVolume: Int
 
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
 
     var body: some View {
         PerGameTab(title: settings.localized("Audio")) {

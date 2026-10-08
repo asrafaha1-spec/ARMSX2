@@ -4,8 +4,7 @@
 import Foundation
 
 @MainActor
-@Observable
-final class InitialContentBootstrap {
+final class InitialContentBootstrap: ObservableObject {
     static let shared = InitialContentBootstrap()
     nonisolated static let didChangeNotification = Notification.Name("ARMSX2iOSInitialContentDidChange")
 
@@ -14,8 +13,8 @@ final class InitialContentBootstrap {
     private static let logoImportDateKey = "ARMSX2iOSFolderLogoImportDate"
     private static let audioPackImportDateKey = "ARMSX2iOSFolderAudioPackImportDate"
 
-    private(set) var selectedFolderName: String?
-    private(set) var isRunning = false
+    @Published private(set) var selectedFolderName: String?
+    @Published private(set) var isRunning = false
 
     var hasSelectedFolder: Bool {
         UserDefaults.standard.data(forKey: Self.bookmarkKey) != nil

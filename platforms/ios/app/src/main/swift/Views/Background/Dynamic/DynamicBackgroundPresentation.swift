@@ -19,7 +19,7 @@ extension EnvironmentValues {
 /// as the Quick Menu. Geometry and interaction remain local to each surface;
 /// only the material style comes from the shared persisted preference.
 private struct QuickMenuLiquidGlassConfigurationModifier: ViewModifier {
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
 
     func body(content: Content) -> some View {
         content.environment(
@@ -43,6 +43,7 @@ extension View {
 }
 
 private struct LightweightLiveWallpaperPresentationModifier: ViewModifier {
+    @ObservedObject private var observedUIFrameRateSettings = UIFrameRateSettings.shared
     @State private var acquiredOverride = false
 
     func body(content: Content) -> some View {
@@ -234,7 +235,7 @@ private struct DynamicBackgroundStyleCrossfadeView: View {
             .clipped()
         }
         .ignoresSafeArea()
-        .onChange(of: requestedPresentation) { _, next in
+        .compatOnChange(of: requestedPresentation) { _, next in
             updatePresentation(to: next)
         }
     }
@@ -344,7 +345,7 @@ struct ResolutionAwareDynamicBackgroundContentView: View {
     let theme: DynamicBackgroundTheme
     var allowsMainMenuThermalFallback = false
 
-    @State private var frameRates = UIFrameRateSettings.shared
+    @ObservedObject private var frameRates = UIFrameRateSettings.shared
     @State private var thermalState = ProcessInfo.processInfo.thermalState
 
     var body: some View {
@@ -589,8 +590,8 @@ private extension DynamicBackgroundTheme {
 }
 
 struct DynamicBackgroundAppearanceSections: View {
-    @State private var settings = SettingsStore.shared
-    @State private var frameRates = UIFrameRateSettings.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var frameRates = UIFrameRateSettings.shared
     @Binding var preferences: DynamicAppearancePreferences
     let showPaletteEditor: () -> Void
 

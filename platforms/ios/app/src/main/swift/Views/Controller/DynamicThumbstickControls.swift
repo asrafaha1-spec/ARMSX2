@@ -101,6 +101,8 @@ enum DynamicThumbstickMath {
 }
 
 struct DynamicThumbstickView: View {
+    @ObservedObject private var observedEmulatorBridge = EmulatorBridge.shared
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     let isLeft: Bool
     let radius: CGFloat
     let maximumRadius: CGFloat
@@ -314,6 +316,7 @@ private struct DynamicThumbstickVisual: View {
 }
 
 struct VirtualPadCameraSwipeView: View {
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     let maximumTapDuration: TimeInterval
     let tapTravelTolerance: CGFloat
     let convertsToDynamicJoystick: Bool
@@ -772,26 +775,25 @@ func pulseVirtualPadActionButton(
 }
 
 @MainActor
-@Observable
-final class DynamicCrosshairRuntimeState {
-    private(set) var isAiming = false
-    private(set) var isSwipeCrosshairVisible = false
-    private(set) var isCameraMoving = false
-    private(set) var isCameraSettling = false
-    private(set) var isShooting = false
-    private(set) var isRapidFiring = false
-    private(set) var cameraMotion = DynamicThumbstickVector.zero
-    private(set) var cameraAcceleration = DynamicThumbstickVector.zero
-    private(set) var movementStartedAt = 0.0
-    private(set) var movementEndedAt = 0.0
-    private(set) var shotStartedAt = 0.0
-    private(set) var shotTiltRadians: CGFloat = 0
-    private(set) var rapidFireStartedAt = 0.0
+final class DynamicCrosshairRuntimeState: ObservableObject {
+    @Published private(set) var isAiming = false
+    @Published private(set) var isSwipeCrosshairVisible = false
+    @Published private(set) var isCameraMoving = false
+    @Published private(set) var isCameraSettling = false
+    @Published private(set) var isShooting = false
+    @Published private(set) var isRapidFiring = false
+    @Published private(set) var cameraMotion = DynamicThumbstickVector.zero
+    @Published private(set) var cameraAcceleration = DynamicThumbstickVector.zero
+    @Published private(set) var movementStartedAt = 0.0
+    @Published private(set) var movementEndedAt = 0.0
+    @Published private(set) var shotStartedAt = 0.0
+    @Published private(set) var shotTiltRadians: CGFloat = 0
+    @Published private(set) var rapidFireStartedAt = 0.0
 
-    @ObservationIgnored private var sourceMotion: [DynamicCrosshairMotionSource: DynamicThumbstickVector] = [:]
-    @ObservationIgnored private var settlingTask: Task<Void, Never>?
-    @ObservationIgnored private var shotTask: Task<Void, Never>?
-    @ObservationIgnored private var swipeHideTask: Task<Void, Never>?
+    private var sourceMotion: [DynamicCrosshairMotionSource: DynamicThumbstickVector] = [:]
+    private var settlingTask: Task<Void, Never>?
+    private var shotTask: Task<Void, Never>?
+    private var swipeHideTask: Task<Void, Never>?
 
     func setAiming(_ aiming: Bool) {
         isAiming = aiming
@@ -1276,9 +1278,9 @@ final class VirtualPadTouchActionSession {
 }
 
 struct DynamicAimCrosshairOverlay: View {
-    let settings: DynamicThumbstickSettings
-    let leftRuntime: DynamicCrosshairRuntimeState
-    let rightRuntime: DynamicCrosshairRuntimeState
+    @ObservedObject var settings: DynamicThumbstickSettings
+    @ObservedObject var leftRuntime: DynamicCrosshairRuntimeState
+    @ObservedObject var rightRuntime: DynamicCrosshairRuntimeState
 
     private var activeRuntime: DynamicCrosshairRuntimeState? {
         if rightRuntime.isAiming { return rightRuntime }
@@ -1317,7 +1319,7 @@ private struct DynamicAimCrosshairView: View {
     let animation: DynamicCrosshairAnimation
     let configuredSize: CGFloat
     let configuredOpacity: CGFloat
-    let runtime: DynamicCrosshairRuntimeState
+    @ObservedObject var runtime: DynamicCrosshairRuntimeState
 
     var body: some View {
         let isAnimating = runtime.isCameraMoving ||

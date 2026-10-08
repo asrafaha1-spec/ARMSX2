@@ -3,7 +3,6 @@
 
 import SwiftUI
 import UIKit
-import Observation
 import GameController
 
 private struct MenuTabIsActiveEnvironmentKey: EnvironmentKey {
@@ -64,7 +63,7 @@ extension EnvironmentValues {
 }
 
 private struct RootControllerAlertCommandListener: View {
-    let controllerInput: MenuControllerInputRouter
+    @ObservedObject var controllerInput: MenuControllerInputRouter
     let onCommand: (MenuControllerCommand) -> Void
 
     var body: some View {
@@ -72,7 +71,7 @@ private struct RootControllerAlertCommandListener: View {
             .frame(width: 0, height: 0)
             .allowsHitTesting(false)
             .accessibilityHidden(true)
-            .onChange(of: controllerInput.latestEvent) { _, event in
+            .compatOnChange(of: controllerInput.latestEvent) { _, event in
                 guard let event,
                       event.captureOwner
                         == MenuControllerNavigationCaptureOwner.rootAlert else {
@@ -160,8 +159,7 @@ private enum RootControllerAlertKind: Equatable {
 /// A question any screen can ask through RootView's prompt window. SwiftUI's own
 /// `.confirmationDialog` is a UIAlertController, which a controller cannot reach.
 @MainActor
-@Observable
-final class ControllerPrompt {
+final class ControllerPrompt: ObservableObject {
     struct Action {
         let title: String
         var isDestructive = false
@@ -177,7 +175,7 @@ final class ControllerPrompt {
     }
 
     static let shared = ControllerPrompt()
-    private(set) var request: Request?
+    @Published private(set) var request: Request?
 
     func ask(_ title: String, message: String, actions: [Action]) {
         request = Request(title: title, message: message, actions: actions)
@@ -206,7 +204,7 @@ extension View {
         message: String = "",
         actions: [ControllerPrompt.Action]
     ) -> some View {
-        onChange(of: isPresented.wrappedValue, initial: true) { _, presented in
+        compatOnChange(of: isPresented.wrappedValue, initial: true) { _, presented in
             guard presented else { return }
             ControllerPrompt.shared.ask(title, message: message, actions: actions.map { action in
                 var action = action
@@ -224,6 +222,7 @@ extension View {
 /// A pad button the way the connected controller draws it: □ on a DualSense, X on an Xbox pad.
 /// Start and Select stay words in a chip, which read better than their icons.
 struct ControllerButtonGlyph: View {
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     let button: ControllerMacroButton
     let tint: Color
     var symbolFont: Font = .caption.weight(.semibold)
@@ -348,8 +347,8 @@ struct ControllerHintLine: View {
 /// GameScreenView inserts this beneath its Quick Menu; RootView uses the same
 /// view only when Emulation-Only Mode replaces the complete gameplay hierarchy.
 struct GameplayControllerShortcutHelpOverlay: View {
-    let settings: SettingsStore
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedObject var settings: SettingsStore
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     /// Clear glass reads as part of the game; under the pause card it needs the card's frost.
     var overPauseMenu = false
 
@@ -496,15 +495,19 @@ struct GameplayControllerShortcutHelpOverlay: View {
 }
 
 struct RootView: View {
-    @State private var appState = AppState.shared
-    @State private var settings = SettingsStore.shared
-    @State private var frameRates = UIFrameRateSettings.shared
-    @State private var gameCoverThemePreview = GameCoverThemePreviewStore.shared
-    @State private var fileImporter = FileImportHandler.shared
+    @ObservedObject private var observedControllerPrompt = ControllerPrompt.shared
+    @ObservedObject private var observedMenuAudioPackManager = MenuAudioPackManager.shared
+    @ObservedObject private var observedPatchStore = PatchStore.shared
+    @ObservedObject private var observedThemeGalleryStore = ThemeGalleryStore.shared
+    @ObservedObject private var appState = AppState.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var frameRates = UIFrameRateSettings.shared
+    @ObservedObject private var gameCoverThemePreview = GameCoverThemePreviewStore.shared
+    @ObservedObject private var fileImporter = FileImportHandler.shared
     @State private var showBootSplash = !AppState.shared.automaticGameStartupPending
     @State private var showNoJITFinalConfirmation = false
     @State private var rootControllerAlertSelection = 0
-    @State private var menuControllerInput = MenuControllerInputRouter()
+    @StateObject private var menuControllerInput = MenuControllerInputRouter()
     @State private var bootSplashInputReleaseTask: Task<Void, Never>?
     @State private var presentedGameplayHelpSessionID: UUID?
     // Theme/background renderer changes are allowed to rebuild MenuTabView,
@@ -890,28 +893,28 @@ struct RootView: View {
         .task {
             appState.startAutomaticGameIfNeeded()
         }
-        .onChange(of: appState.automaticGameStartupPending) { _, pending in
+        .compatOnChange(of: appState.automaticGameStartupPending) { _, pending in
             // Update the destination before releasing the startup music gate;
             // controller-owned JIT prompts are not an emulation Quick Menu.
             menuControllerInput.setMenuActive(menuScreenActive)
             MenuAudioPackManager.shared.setMainInterfaceActive(mainAudioInterfaceActive)
             MenuAudioPackManager.shared.setAutomaticGameStartupActive(pending)
         }
-        .onChange(of: settings.hideIntroStatusBar) { _, hideStatusBar in
+        .compatOnChange(of: settings.hideIntroStatusBar) { _, hideStatusBar in
             guard showBootSplash else { return }
             appState.hideStatusBar = hideStatusBar
         }
-        .onChange(of: settings.hideMenuStatusBar) { _, hideStatusBar in
+        .compatOnChange(of: settings.hideMenuStatusBar) { _, hideStatusBar in
             guard !showBootSplash, menuScreenActive else { return }
             appState.hideStatusBar = hideStatusBar
         }
-        .onChange(of: menuScreenActive) { _, active in
+        .compatOnChange(of: menuScreenActive) { _, active in
             handleMenuScreenActiveChange(active)
         }
-        .onChange(of: mainAudioInterfaceActive) { _, active in
+        .compatOnChange(of: mainAudioInterfaceActive) { _, active in
             MenuAudioPackManager.shared.setMainInterfaceActive(active)
         }
-        .onChange(of: appState.gameplayLaunchTransition?.id) { previous, current in
+        .compatOnChange(of: appState.gameplayLaunchTransition?.id) { previous, current in
             if previous != nil, current == nil {
                 MenuAudioPackManager.shared.setMainInterfaceActive(
                     mainAudioInterfaceActive
@@ -920,7 +923,7 @@ struct RootView: View {
                 scheduleGameplayControllerHelpIfReady()
             }
         }
-        .onChange(of: appState.emulationSessionID) { _, _ in
+        .compatOnChange(of: appState.emulationSessionID) { _, _ in
             scheduleGameplayControllerHelpIfReady()
         }
         .onReceive(
@@ -958,7 +961,7 @@ struct RootView: View {
         ) { _ in
             MenuAudioPackManager.shared.setApplicationActive(false)
         }
-        .onChange(of: activeControllerAlertKind, initial: true) { previous, kind in
+        .compatOnChange(of: activeControllerAlertKind, initial: true) { previous, kind in
             rootControllerAlertSelection = 0
             updateRootAlertNavigationCapture(isPresented: kind != nil)
             guard let kind, kind != previous else { return }
@@ -975,7 +978,7 @@ struct RootView: View {
                 MenuAudioPackManager.shared.playEvent(.uiToast)
             }
         }
-        .onChange(
+        .compatOnChange(
             of: appState.pendingJITGameBoot != nil,
             initial: true
         ) { _, isPresented in
@@ -1673,7 +1676,7 @@ struct FluidGameplayLaunchCard: View {
 }
 
 private struct MenuTabControllerCommandListener: View {
-    let controllerInput: MenuControllerInputRouter
+    @ObservedObject var controllerInput: MenuControllerInputRouter
     let onEvent: (MenuControllerInputEvent) -> Void
 
     var body: some View {
@@ -1681,7 +1684,7 @@ private struct MenuTabControllerCommandListener: View {
             .frame(width: 0, height: 0)
             .allowsHitTesting(false)
             .accessibilityHidden(true)
-            .onChange(of: controllerInput.latestEvent) { _, event in
+            .compatOnChange(of: controllerInput.latestEvent) { _, event in
                 guard let event else { return }
                 onEvent(event)
             }
@@ -1689,9 +1692,8 @@ private struct MenuTabControllerCommandListener: View {
 }
 
 @MainActor
-@Observable
-private final class MenuControllerTabFocusState {
-    var focusedIndex = 0
+private final class MenuControllerTabFocusState: ObservableObject {
+    @Published var focusedIndex = 0
 
     init(focusedIndex: Int = 0) {
         self.focusedIndex = focusedIndex
@@ -1707,8 +1709,10 @@ private struct MenuBottomTabBarLayout {
 }
 
 struct MenuTabView: View {
-    @State private var settings = SettingsStore.shared
-    @State private var logoStore = ARMSX2LogoStore.shared
+    @ObservedObject private var observedBIOSLibraryState = BIOSLibraryState.shared
+    @ObservedObject private var observedMenuAudioPackManager = MenuAudioPackManager.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var logoStore = ARMSX2LogoStore.shared
     @Binding var selectedTab: Int
     @Binding var settingsNavigationPath: [SettingsPane]
     @State private var titleMorphSelection = 0
@@ -1751,7 +1755,7 @@ struct MenuTabView: View {
     @AppStorage("ARMSX2iOSLandscapeBottomNavigationTabBarShowsLabels")
     private var landscapeBottomNavigationTabBarShowsLabels = 1
     let backgroundHost: PersistentMenuBackgroundHost
-    let controllerInput: MenuControllerInputRouter
+    @ObservedObject var controllerInput: MenuControllerInputRouter
     @Namespace private var largeTitleNamespace
     @Environment(\.layoutDirection) private var layoutDirection
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -2218,7 +2222,7 @@ struct MenuTabView: View {
                     .onAppear {
                         menuViewportSize = proxy.size
                     }
-                    .onChange(of: proxy.size) { _, size in
+                    .compatOnChange(of: proxy.size) { _, size in
                         guard menuViewportSize != size else { return }
                         menuViewportSize = size
                     }
@@ -2252,13 +2256,13 @@ struct MenuTabView: View {
             backgroundHost.reactivateForMenu(isAvailable: settings.hasCustomBackground)
             backgroundHost.setPresentationVisible(selectedTabShowsBackground)
         }
-        .onChange(of: settings.hasCustomBackground) { _, hasBackground in
+        .compatOnChange(of: settings.hasCustomBackground) { _, hasBackground in
             backgroundHost.setMenuBackgroundAvailable(hasBackground)
         }
-        .onChange(of: settings.dynamicBackgroundsEnabled) { _, _ in
+        .compatOnChange(of: settings.dynamicBackgroundsEnabled) { _, _ in
             backgroundHost.setMenuBackgroundAvailable(settings.hasCustomBackground)
         }
-        .onChange(of: selectedTabShowsBackground) { _, showsBackground in
+        .compatOnChange(of: selectedTabShowsBackground) { _, showsBackground in
             backgroundHost.setPresentationVisible(showsBackground)
         }
         .onDisappear {
@@ -2425,7 +2429,7 @@ private struct ControllerTabBarOrbOverlay: View {
     let segmentInset: CGFloat
     let permitsSegmentFallback: Bool
     let selection: Int
-    let controllerInput: MenuControllerInputRouter
+    @ObservedObject var controllerInput: MenuControllerInputRouter
     var body: some View {
         GeometryReader { proxy in
             if controllerInput.hasConnectedController,
@@ -2450,14 +2454,14 @@ private struct ControllerTabBarOrbOverlay: View {
                                 selectedIndex: selection
                             )
                         }
-                        .onChange(of: windowFrame) { _, next in
+                        .compatOnChange(of: windowFrame) { _, next in
                             controllerInput.updateTabBarOrbFocusFrame(
                                 next,
                                 focusedIndex: focusedIndex,
                                 selectedIndex: selection
                             )
                         }
-                        .onChange(of: selection) { _, next in
+                        .compatOnChange(of: selection) { _, next in
                             controllerInput.updateTabBarOrbFocusFrame(
                                 windowFrame,
                                 focusedIndex: focusedIndex,
@@ -2517,8 +2521,8 @@ private struct ControllerTabBarOrbOverlay: View {
 /// retained Games/BIOS/Settings hierarchy behind it.
 private struct ControllerFocusedMenuTabBar: View {
     @Binding var selection: Int
-    let focusState: MenuControllerTabFocusState
-    let controllerInput: MenuControllerInputRouter
+    @ObservedObject var focusState: MenuControllerTabFocusState
+    @ObservedObject var controllerInput: MenuControllerInputRouter
     let layout: MenuBottomTabBarLayout
     let titles: [String]
     let onReselect: (Int) -> Void
@@ -4341,7 +4345,7 @@ private struct SafeAreaProtectedMenuTabContent<Content: View>: View {
                 .padding(.leading, layoutDirection == .rightToLeft ? insets.right : insets.left)
                 .padding(.trailing, layoutDirection == .rightToLeft ? insets.left : insets.right)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .onChange(of: geometry.size) { _, _ in
+                .compatOnChange(of: geometry.size) { _, _ in
                     safeAreaInsets = KeyWindowSafeArea.horizontalInsets()
                 }
         }
@@ -4390,7 +4394,7 @@ private enum NormalTabContentMargin {
 #if targetEnvironment(macCatalyst)
 private struct CatalystMenuTabBar: View {
     @Binding var selectedTab: Int
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
 
     private let tabs = [
         (0, "Games"),

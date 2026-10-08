@@ -16,7 +16,7 @@ struct GeneralTab: View {
     let hasPendingChanges: Bool
     let savesToRunningGame: Bool
     let game: ISOEntry
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
 
     var body: some View {
         PerGameTab(title: settings.localized("General")) {
@@ -46,7 +46,7 @@ struct GeneralTab: View {
 
 struct PerGameLivePreviewSection: View {
     let savesToRunningGame: Bool
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
 
     private var previewEnabled: Binding<Bool> {
         Binding(
@@ -145,7 +145,7 @@ struct PerGameIdentitySection: View {
     let hasPendingChanges: Bool
     let savesToRunningGame: Bool
     let game: ISOEntry
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
 
     var body: some View {
         Section {
@@ -189,7 +189,7 @@ struct PerGameOverridesSection: View {
 
     let hasGameSettingsIdentity: Bool
     let savesToRunningGame: Bool
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
 
     var body: some View {
         Section {
@@ -229,7 +229,7 @@ struct PerGameOverridesSection: View {
 
 struct PerGameStatusSection: View {
     let statusMessage: String?
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
 
     var body: some View {
         if let statusMessage {

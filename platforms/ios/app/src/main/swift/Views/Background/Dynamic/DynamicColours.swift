@@ -1232,7 +1232,7 @@ struct ThemePaletteEditor: View {
       .presentationBackground(.clear)
       .presentationDragIndicator(isShowingBackgroundOnly ? .hidden : .visible)
       .onAppear(perform: prepareEditor)
-      .onChange(of: currentEditorSnapshot) { oldSnapshot, newSnapshot in
+      .compatOnChange(of: currentEditorSnapshot) { oldSnapshot, newSnapshot in
         handleEditorSnapshotChange(from: oldSnapshot, to: newSnapshot)
       }
       .onDisappear(perform: tearDownEditor)
@@ -1288,7 +1288,7 @@ struct ThemePaletteEditor: View {
         ScrollView {
           editorSections
         }
-        .onChange(of: scrollToTopRequest) { _, _ in
+        .compatOnChange(of: scrollToTopRequest) { _, _ in
           var transaction = Transaction(animation: nil)
           transaction.disablesAnimations = true
           withTransaction(transaction) {

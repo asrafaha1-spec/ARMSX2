@@ -72,10 +72,10 @@ private final class SkinReplaceGate {
 struct VirtualPadSettingsView: View {
     let onOpenPane: (SettingsPane) -> Void
 
-    @State private var settings = SettingsStore.shared
-    @State private var dynamicSettings = DynamicThumbstickSettings.shared
-    @State private var layoutPresets = PadLayoutPresetStore.shared
-    @State private var skinLibrary = VPadSkinLibraryStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var dynamicSettings = DynamicThumbstickSettings.shared
+    @ObservedObject private var layoutPresets = PadLayoutPresetStore.shared
+    @ObservedObject private var skinLibrary = VPadSkinLibraryStore.shared
     @State private var showLayoutEditor = false
     @State private var showSkinImporter = false
     @State private var showSkinImportAlert = false
@@ -1392,6 +1392,7 @@ struct VirtualPadSettingsView: View {
 /// These are the only rows left that describe themselves at the call site, and they can: each one
 /// is on this screen and nowhere else, so there is nothing for it to disagree with.
 private struct DynamicControlSlider: View {
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     let title: String
     @Binding var value: Double
     let range: ClosedRange<Double>
@@ -1416,6 +1417,7 @@ private struct DynamicControlSlider: View {
 }
 
 private struct DynamicSwipeSensitivityControl: View {
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     private static let sensitivityRange: ClosedRange<Double> = 0.08...0.75
     private static let sensitivityStep = 0.01
 

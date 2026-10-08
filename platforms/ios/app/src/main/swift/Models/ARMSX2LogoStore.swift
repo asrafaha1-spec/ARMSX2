@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0+
 
 import Foundation
-import Observation
 import UIKit
 
 enum ARMSX2LogoStoreError: LocalizedError {
@@ -23,15 +22,14 @@ enum ARMSX2LogoStoreError: LocalizedError {
 }
 
 @MainActor
-@Observable
-final class ARMSX2LogoStore {
+final class ARMSX2LogoStore: ObservableObject {
     static let shared = ARMSX2LogoStore()
     static let didChangeNotification = Notification.Name("ARMSX2iOSLogoDidChange")
 
     private static let maximumFileSize = 16 * 1024 * 1024
     private static let maximumPixelDimension: CGFloat = 8_192
 
-    private(set) var image: UIImage?
+    @Published private(set) var image: UIImage?
 
     var hasLogo: Bool { image != nil }
 

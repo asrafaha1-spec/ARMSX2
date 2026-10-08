@@ -40,6 +40,8 @@ struct ActionButtonsView: View {
 }
 
 struct PSBtn: View {
+    @ObservedObject private var observedEmulatorBridge = EmulatorBridge.shared
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     let sym: String; let clr: Color; let sz: CGFloat; let btn: ARMSX2PadButton
     var visibleScaleX: CGFloat = 1.0
     var visibleScaleY: CGFloat = 1.0
@@ -238,6 +240,8 @@ struct PadButtonFace: View {
 }
 
 struct PadBtn: View {
+    @ObservedObject private var observedEmulatorBridge = EmulatorBridge.shared
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     let label: String; let w: CGFloat; let h: CGFloat; let btn: ARMSX2PadButton
     var visibleScaleX: CGFloat = 1.0
     var visibleScaleY: CGFloat = 1.0
@@ -327,6 +331,8 @@ struct PadBtn: View {
 
 // MARK: - Analog Stick with L3/R3 tap
 struct StickView: View {
+    @ObservedObject private var observedEmulatorBridge = EmulatorBridge.shared
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     let isLeft: Bool
     let sizeScale: CGFloat
     var layoutScale: CGFloat = 1.0

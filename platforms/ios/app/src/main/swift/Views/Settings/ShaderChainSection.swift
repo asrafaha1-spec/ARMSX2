@@ -12,7 +12,7 @@ private struct ShaderPackPickerSource: Identifiable {
 
 private struct ShaderPackInstallOptionsView: View {
     let localized: @MainActor (String) -> String
-    let controllerInput: MenuControllerInputRouter?
+    @ObservedOptional var controllerInput: MenuControllerInputRouter?
     let onZip: () -> Void
     let onFolder: () -> Void
     let onBasePack: () -> Void
@@ -111,10 +111,12 @@ private struct ShaderCatalogBrowserRequest: Identifiable {
 
 /// Persistence comes from the caller, so Settings and the pause card share these rows.
 struct ShaderChainSection: View {
+    @ObservedObject private var observedMenuAudioPackManager = MenuAudioPackManager.shared
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     @Binding var enabled: Bool
     @Binding var presetRef: String
     let localized: @MainActor (String) -> String
-    var controllerInput: MenuControllerInputRouter? = nil
+    @ObservedOptional var controllerInput: MenuControllerInputRouter? = nil
     var onLivePreviewChange: (@MainActor (String, String) -> Void)? = nil
     var showsParameters = true
     var showsClearPresetAction = true

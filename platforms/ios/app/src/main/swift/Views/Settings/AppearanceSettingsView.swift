@@ -34,9 +34,9 @@ struct AppearanceSettingsView: View {
         var id: String { rawValue }
     }
 
-    @State private var settings = SettingsStore.shared
-    @State private var frameRates = UIFrameRateSettings.shared
-    @State private var themeGallery = ThemeGalleryStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
+    @ObservedObject private var frameRates = UIFrameRateSettings.shared
+    @ObservedObject private var themeGallery = ThemeGalleryStore.shared
     @State private var dynamicPreferences = SettingsStore.shared.dynamicAppearancePreferences
     @State private var paletteTarget: ThemePaletteTarget = .shared
     @State private var presentedEditor: PresentedEditor?
@@ -192,7 +192,7 @@ struct AppearanceSettingsView: View {
                         (id: $0, title: label(for: $0))
                     }
                 )
-                .onChange(of: settings.backgroundFitMode) { _, _ in
+                .compatOnChange(of: settings.backgroundFitMode) { _, _ in
                     UISelectionFeedbackGenerator().selectionChanged()
                 }
                 .appearanceControllerListRow(
@@ -224,7 +224,7 @@ struct AppearanceSettingsView: View {
                         (id: $0, title: label(for: $0))
                     }
                 )
-                .onChange(of: settings.backgroundLandscapeFitMode) { _, _ in
+                .compatOnChange(of: settings.backgroundLandscapeFitMode) { _, _ in
                     UISelectionFeedbackGenerator().selectionChanged()
                 }
                 .appearanceControllerListRow(
@@ -1096,7 +1096,7 @@ struct AppearanceSettingsView: View {
         .onAppear {
             dynamicPreferences = settings.dynamicAppearancePreferences
         }
-        .onChange(of: settings.dynamicAppearancePreferences) { _, preferences in
+        .compatOnChange(of: settings.dynamicAppearancePreferences) { _, preferences in
             if presentedEditor == nil { dynamicPreferences = preferences }
         }
         .onDisappear {
@@ -1593,7 +1593,7 @@ private struct AppearanceFrameRateSliderRow: View {
 private struct NavigationFocusAnimationPreview: View {
     let animation: ControllerNavigationFocusTravelStyle
     @State private var isAtDestination = false
-    @State private var settings = SettingsStore.shared
+    @ObservedObject private var settings = SettingsStore.shared
 
     var body: some View {
         Button {

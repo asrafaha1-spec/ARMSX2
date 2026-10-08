@@ -11,6 +11,7 @@ enum BackgroundAssetRole: String, CaseIterable, Identifiable {
 }
 
 struct BackgroundSourcePicker: ViewModifier {
+    @ObservedObject private var observedSettingsStore = SettingsStore.shared
     @Binding var isPresented: Bool
     let role: BackgroundAssetRole
     let existingAsset: () -> BackgroundAsset?
@@ -30,7 +31,7 @@ struct BackgroundSourcePicker: ViewModifier {
         content
             .controllerPrompt(dialogTitle, isPresented: $isPresented, actions: sourceActions)
             .photosPicker(isPresented: $showPhotoPicker, selection: $selectedPhotoItem, matching: .any(of: [.images, .videos]))
-            .onChange(of: selectedPhotoItem) { _, item in
+            .compatOnChange(of: selectedPhotoItem) { _, item in
                 guard let item else { return }
                 selectedPhotoItem = nil
                 Task { @MainActor in await importPhotoItem(item) }

@@ -531,7 +531,7 @@ private struct OrbitKeysFullQwertyKeyButton: View {
         .buttonStyle(.plain)
       }
     }
-    .onChange(of: feedbackTrigger) { _, newValue in
+    .compatOnChange(of: feedbackTrigger) { _, newValue in
       guard newValue > 0 else { return }
       pulse()
     }

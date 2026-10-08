@@ -33,7 +33,7 @@ struct NumberOverrideRow: View {
     @Binding var value: Int
     let global: Int
     var sentinel: Int = SettingsOptions.useGlobalID
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
     @Environment(\.perGameOverrideWillActivate)
     private var perGameOverrideWillActivate
 
@@ -104,7 +104,7 @@ struct FloatOverrideRow: View {
     @Binding var value: Float
     let global: Float
     var sentinel: Float = -1.0
-    let settings: SettingsStore
+    @ObservedObject var settings: SettingsStore
     @Environment(\.perGameOverrideWillActivate)
     private var perGameOverrideWillActivate
 
