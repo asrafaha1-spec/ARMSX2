@@ -97,7 +97,7 @@ struct ThemeGalleryView: View {
             }
         }
         .preferredColorScheme(.dark)
-        .presentationBackground(.clear)
+        .compatPresentationBackground(.clear)
         .presentationDragIndicator(isPreviewing ? .hidden : .visible)
         .onAppear {
             guard original == nil else { return }
@@ -143,7 +143,7 @@ struct ThemeGalleryView: View {
                 },
                 onCancel: { showsNameKeyboard = false }
             )
-            .presentationBackground(.clear)
+            .compatPresentationBackground(.clear)
             .appStatusBarHidden()
         }
         .controllerPrompt(
@@ -233,7 +233,7 @@ struct ThemeGalleryView: View {
             }
         case .saved:
             if gallery.themes.isEmpty {
-                ContentUnavailableView(
+                CompatContentUnavailable(
                     "No Saved Themes", systemImage: "paintpalette",
                     description: Text("Choose Save Custom Theme to keep your current design.")
                 )

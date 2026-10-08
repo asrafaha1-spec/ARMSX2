@@ -110,3 +110,63 @@ extension View {
         compatOnChange(of: value, initial: initial) { _, _ in action() }
     }
 }
+
+// MARK: - Presentation
+
+extension View {
+    /// `presentationBackground` arrived in iOS 16.4. On 16.0-16.3 a sheet keeps its
+    /// default background, so the translucent sheets this app builds become opaque
+    /// there instead of failing to build.
+    @ViewBuilder
+    func compatPresentationBackground<S: ShapeStyle>(_ style: S) -> some View {
+        if #available(iOS 16.4, *) {
+            presentationBackground(style)
+        } else {
+            self
+        }
+    }
+}
+
+// MARK: - Empty state
+
+/// `ContentUnavailableView(_:systemImage:description:)` on iOS 17+; the same idea
+/// built by hand on iOS 16.
+struct CompatContentUnavailable: View {
+    let title: String
+    let systemImage: String
+    let description: Text?
+
+    init(_ title: String, systemImage: String, description: Text? = nil) {
+        self.title = title
+        self.systemImage = systemImage
+        self.description = description
+    }
+
+    var body: some View {
+        if #available(iOS 17.0, *) {
+            if let description {
+                ContentUnavailableView(title, systemImage: systemImage, description: description)
+            } else {
+                ContentUnavailableView(title, systemImage: systemImage)
+            }
+        } else {
+            VStack(spacing: 10) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 44))
+                    .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
+                Text(title)
+                    .font(.title2.weight(.bold))
+                if let description {
+                    description
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+            .accessibilityElement(children: .combine)
+        }
+    }
+}

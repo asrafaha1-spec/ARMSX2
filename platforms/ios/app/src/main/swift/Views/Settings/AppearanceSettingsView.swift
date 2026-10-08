@@ -1053,7 +1053,7 @@ struct AppearanceSettingsView: View {
                 },
                 onCancel: { showsThemeNameKeyboard = false }
             )
-            .presentationBackground(.clear)
+            .compatPresentationBackground(.clear)
             .appStatusBarHidden()
         }
         .controllerPrompt(

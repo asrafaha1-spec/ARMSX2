@@ -1377,7 +1377,7 @@ struct GameScreenView: View {
             }
         } else {
             NavigationStack {
-                ContentUnavailableView(
+                CompatContentUnavailable(
                     settings.localized("No Game Active"),
                     systemImage: "gamecontroller",
                     description: Text(settings.localized("Start a game before changing per-game settings."))

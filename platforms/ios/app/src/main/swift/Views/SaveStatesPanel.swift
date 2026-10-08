@@ -202,7 +202,7 @@ struct SaveStatesPanel: View {
                 },
                 onCancel: { keyboardRequest = nil }
             )
-            .presentationBackground(.clear)
+            .compatPresentationBackground(.clear)
             .appStatusBarHidden()
         }
         .compatOnChange(of: landscape) { _, _ in

@@ -69,7 +69,7 @@ struct TexturePacksView<Options: View>: View {
                 }
                 if let packs {
                     if packs.isEmpty && !importing {
-                        ContentUnavailableView(settings.localized("No texture packs installed."), systemImage: "photo.stack")
+                        CompatContentUnavailable(settings.localized("No texture packs installed."), systemImage: "photo.stack")
                             .frame(maxWidth: .infinity)
                     }
                     ForEach(packs) { pack in

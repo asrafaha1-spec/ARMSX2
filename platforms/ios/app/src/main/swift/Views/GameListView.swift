@@ -3560,7 +3560,7 @@ struct GameListView: View {
                 ) {
                     GameInfoPanel(game: game)
                 }
-                .presentationBackground(.clear)
+                .compatPresentationBackground(.clear)
                 .appStatusBarHidden()
             }
             .fullScreenCover(isPresented: $gameLibraryViewOptionsPresented) {
@@ -3648,7 +3648,7 @@ struct GameListView: View {
                     }
                 }
                 .onDisappear { gameLibraryViewOptionsPreview = nil }
-                .presentationBackground(.clear)
+                .compatPresentationBackground(.clear)
                 .appStatusBarHidden()
             }
             // A page overlay cannot outrank NavigationStack chrome or the
@@ -3702,7 +3702,7 @@ struct GameListView: View {
                         .isolatedMenuGlassContainer()
                     }
                 }
-                .presentationBackground(.clear)
+                .compatPresentationBackground(.clear)
                 .appStatusBarHidden()
             }
             // Match Context Menu's scene-level presentation. A page overlay
@@ -3769,7 +3769,7 @@ struct GameListView: View {
                         controllerAlertSelectedIndex = 0
                     }
                     .contextMenuPanelTextAppearance()
-                    .presentationBackground(.clear)
+                    .compatPresentationBackground(.clear)
                     .appStatusBarHidden()
                 }
             }
@@ -3793,7 +3793,7 @@ struct GameListView: View {
                         releasePreparedGameSettings()
                     }
                 )
-                .presentationBackground(.clear)
+                .compatPresentationBackground(.clear)
                 .appStatusBarHidden()
             }
             .fullScreenCover(item: $renameTarget) { game in
@@ -3810,7 +3810,7 @@ struct GameListView: View {
                         renameTarget = nil
                     }
                 )
-                .presentationBackground(.clear)
+                .compatPresentationBackground(.clear)
                 .appStatusBarHidden()
             }
             .fullScreenCover(item: $discLinkTarget) { game in
@@ -3824,7 +3824,7 @@ struct GameListView: View {
                         loadGames()
                     }
                 }
-                .presentationBackground(.clear)
+                .compatPresentationBackground(.clear)
                 .appStatusBarHidden()
             }
             .fullScreenCover(item: $cheatsManagerTarget) { game in
@@ -3840,7 +3840,7 @@ struct GameListView: View {
                         controllerInput: controllerInput
                     )
                 }
-                .presentationBackground(.clear)
+                .compatPresentationBackground(.clear)
                 .appStatusBarHidden()
             }
 			}

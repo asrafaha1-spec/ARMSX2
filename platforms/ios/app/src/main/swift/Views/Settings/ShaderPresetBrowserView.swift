@@ -317,7 +317,7 @@ private struct ShaderDownloadManagerView: View {
             if isLoading {
                 HStack { Spacer(); ProgressView(); Spacer() }
             } else if downloads.isEmpty {
-                ContentUnavailableView(
+                CompatContentUnavailable(
                     localized("No Downloaded Shaders"),
                     systemImage: "square.stack.3d.up.slash",
                     description: Text(localized(

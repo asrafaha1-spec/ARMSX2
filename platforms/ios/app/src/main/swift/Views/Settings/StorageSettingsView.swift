@@ -356,7 +356,7 @@ struct StorageSettingsView: View {
                 .controllerAccessibilityTargetID("settings.storage.add-folder")
 
                 if externalLibrary.directories.isEmpty {
-                    ContentUnavailableView(
+                    CompatContentUnavailable(
                         settings.localized("No External Games"),
                         systemImage: "externaldrive",
                         description: Text(settings.localized("Add a folder or game file from Files to play without copying it into ARMSX2."))

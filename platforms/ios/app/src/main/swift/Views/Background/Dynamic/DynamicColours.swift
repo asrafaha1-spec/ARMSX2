@@ -1229,7 +1229,7 @@ struct ThemePaletteEditor: View {
   var body: some View {
     editorSurface
       .preferredColorScheme(.dark)
-      .presentationBackground(.clear)
+      .compatPresentationBackground(.clear)
       .presentationDragIndicator(isShowingBackgroundOnly ? .hidden : .visible)
       .onAppear(perform: prepareEditor)
       .compatOnChange(of: currentEditorSnapshot) { oldSnapshot, newSnapshot in

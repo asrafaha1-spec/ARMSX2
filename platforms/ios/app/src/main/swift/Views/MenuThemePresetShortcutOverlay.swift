@@ -180,7 +180,7 @@ struct MenuThemePresetShortcutOverlay: View {
                     showsThemeNameKeyboard = false
                 }
             )
-            .presentationBackground(.clear)
+            .compatPresentationBackground(.clear)
             .appStatusBarHidden()
         }
         .controllerPrompt(
