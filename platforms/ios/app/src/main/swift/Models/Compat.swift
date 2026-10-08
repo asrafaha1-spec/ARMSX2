@@ -33,7 +33,6 @@ struct ObservedOptional<Object: ObservableObject>: DynamicProperty {
         set { object = newValue }
     }
 
-    @MainActor
     func update() {
         relay.attach(to: object)
     }
@@ -221,6 +220,21 @@ extension View {
             case .basedOnSize:
                 scrollBounceBehavior(.basedOnSize, axes: axes)
             }
+        } else {
+            self
+        }
+    }
+
+    /// `scrollPosition(id:anchor:)` (iOS 17). On iOS 16 the binding is never written, so
+    /// scroll-position restoration is skipped; programmatic scrolling still goes through
+    /// `ScrollViewReader`.
+    @ViewBuilder
+    func compatScrollPosition<ID: Hashable>(
+        id: Binding<ID?>,
+        anchor: UnitPoint? = nil
+    ) -> some View {
+        if #available(iOS 17.0, *) {
+            scrollPosition(id: id, anchor: anchor)
         } else {
             self
         }

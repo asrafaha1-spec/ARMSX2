@@ -915,7 +915,7 @@ struct SettingsRootView: View {
         .compatContentMargins(.bottom, 0, for: .scrollContent)
         .scrollDisabled(false)
         .compatScrollBounceBehavior(.always)
-        .scrollPosition(id: $rootScrollPositionID, anchor: .top)
+        .compatScrollPosition(id: $rootScrollPositionID, anchor: .top)
         .compatOnChange(of: rootScrollPositionID) { _, _ in
             // SwiftUI updates this binding for direct-finger scrolling as
             // well as programmatic/controller scrolling. Persist that common
